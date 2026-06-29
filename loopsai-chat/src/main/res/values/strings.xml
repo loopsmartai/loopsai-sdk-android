@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="loopsai_chat_error_title">Unable to load chat</string>
+    <string name="loopsai_chat_retry">Retry</string>
+    <string name="loopsai_chat_close">Close</string>
+</resources>
