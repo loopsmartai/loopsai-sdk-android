@@ -29,7 +29,7 @@ Add the dependency to your app-level `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.loopsmartai.loopsai-sdk-android:loopsai-chat:1.0.0")
+    implementation("com.github.loopsmartai:loopsai-sdk-android:1.0.2")
 }
 ```
 
