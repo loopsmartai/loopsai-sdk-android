@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LoopsAI SDK — Android Showcase"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Agent + organization are set in LoopsConfig.kt"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Configuration"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etEnvUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Custom environment URL (leave empty for Production)"
+            android:inputType="textUri" />
+
+        <EditText
+            android:id="@+id/etLocale"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Locale (e.g. en, tr — empty to auto-detect)"
+            android:inputType="text" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/swShowClose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:checked="true"
+            android:text="Show native close button" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/swStartFresh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start a fresh conversation" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/swKeepAlive"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Keep alive (warm WebView pool)" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Feature flag overrides (off = server default)"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/swVto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Virtual try-on" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/swSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Search escalation" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/swProductSuggestion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Product suggestion" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/swOutfit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Outfit suggestion" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Initial context"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etProductCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Product code"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/etProductName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Product name"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/etUserId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="User id"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/etFirstName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="First name"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:inputType="textEmailAddress" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Launch"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOpenEmbedded"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Open embedded (Fragment + full control)" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOpenActivity"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Open as Activity" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOpenCompose"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Open as Compose (LoopsAIChatView)" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Data &amp; session"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClearCache"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="clearWebCache()" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnResetData"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="resetAllData()" />
+
+    </LinearLayout>
+</ScrollView>

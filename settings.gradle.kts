@@ -22,3 +22,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "loopsai-sdk-android"
 include(":loopsai-chat")
+
+// Comprehensive sample app demonstrating the full SDK surface.
+include(":example")
+project(":example").projectDir = file("Examples/app")

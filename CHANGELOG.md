@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed — broader device support
+
+- **Lowered `minSdk` from 24 (Android 7.0) to 21 (Android 5.0)** so older host
+  apps can integrate. 21 is the floor (Jetpack Compose + the current AndroidX
+  baseline); every WebView/session API the SDK uses is available at 21.
+- The published artifact is just bytecode — host apps do **not** need Kotlin 2.0
+  to consume it.
+
 ### Added — full iOS public-API parity
 
 - **Product quoting**: `quoteProduct(product)` (card above the input) and
