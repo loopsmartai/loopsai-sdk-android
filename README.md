@@ -6,6 +6,7 @@
 
 The official Android SDK for [LoopsAI](https://loopsai.com) — embed AI-powered chat into any Android app with a few lines of code. Supports both **Views/Fragments** and **Jetpack Compose**.
 
+
 ---
 
 ## Installation
@@ -308,8 +309,7 @@ Built-in adapters: `LoopsSinkAdapter`, `HttpWebhookAdapter` (raw JSON POST),
 
 ## Requirements
 
-- Android 7.0+ (API 24)
-- Kotlin 2.0+
+- Android 5.0+ (API 21)
 - AndroidX
 
 ---

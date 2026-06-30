@@ -11,7 +11,10 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        minSdk = 24
+        // Android 5.0. This is the floor: Jetpack Compose (LoopsAIChatView) and the
+        // current AndroidX baseline require API 21. All WebView/session APIs the SDK
+        // uses are available at 21, so older host apps can integrate.
+        minSdk = 21
         consumerProguardFiles("consumer-rules.pro")
     }
 
