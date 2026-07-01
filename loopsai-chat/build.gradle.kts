@@ -6,8 +6,8 @@ plugins {
     id("maven-publish")
 }
 
-// The published version follows the git tag JitPack checks out (e.g. tag `v1.0.1`
-// -> "1.0.1"), so the artifact's version always matches the requested coordinate.
+// The published version follows the git tag JitPack checks out (e.g. tag `v1.0.2`
+// -> "1.0.2"), so the artifact's version always matches the requested coordinate.
 // Falls back to a default for local/untagged builds.
 val sdkVersion: String = run {
     try {

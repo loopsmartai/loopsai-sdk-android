@@ -121,6 +121,8 @@ class MainActivity : AppCompatActivity() {
 | `showCloseButton` | `Boolean` | No | `true` | Show native close button (top-right overlay) |
 | `startFresh` | `Boolean` | No | `false` | Start a new conversation on load instead of resuming the last one |
 | `keepAliveEnabled` | `Boolean` | No | `true` | Keep the chat runtime warm for instant reopen (shared WebView pool) |
+| `developmentMode` | `Boolean` | No | `false` | Load the chat even when the agent's web channel is inactive (staging/QA) |
+| `designMode` | `Boolean` | No | `false` | Same override for design/preview builds |
 
 > Mirrors the iOS SDK's public API (shared `CONTRACT` v1). Both platforms speak
 > the same typed bridge and emit identical canonical analytics events
@@ -224,6 +226,25 @@ fragment.setWebsiteFont("Inter, sans-serif")
 fragment.startNewConversation()          // discard resume pointer, start fresh
 fragment.closeOverlays()                 // close overlays on a back gesture
 ```
+
+---
+
+## Availability (server-controlled on/off)
+
+Turn chat on/off from the dashboard **without an app update** — mirrors the web
+widget's active/inactive channel. Query it before showing your chat entry point:
+
+```kotlin
+LoopsAIChat.fetchAvailability("your_agent_id") { available ->
+    chatButton.isVisible = available
+}
+```
+
+Use this to keep chat off at release and flip it on later, or disable it for
+maintenance. It fails **open** (returns `true`) on a network error, so a transient
+blip never hides a working chat. For staging/QA builds that must load even while
+the channel is inactive, set `developmentMode = true` (or `designMode = true`) on
+the config.
 
 ---
 

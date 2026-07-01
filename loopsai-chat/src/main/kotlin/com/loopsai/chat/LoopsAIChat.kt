@@ -1,12 +1,16 @@
 package com.loopsai.chat
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.webkit.CookieManager
 import android.webkit.WebStorage
 import android.webkit.WebView
 import androidx.fragment.app.FragmentManager
 import com.loopsai.chat.internal.LoopsAIChatRegistry
 import com.loopsai.chat.internal.LoopsChatWebViewPool
+import com.loopsai.chat.internal.LoopsHttp
+import org.json.JSONObject
 
 /**
  * Entry point for presenting the Loops AI chat experience.
@@ -49,6 +53,39 @@ object LoopsAIChat {
             .addToBackStack(tag)
             .commit()
         return fragment
+    }
+
+    /**
+     * Query whether the agent's web channel is **active** (server-controlled), so
+     * you can show or hide your chat entry point without shipping an app update.
+     * This mirrors the web widget's `embedEnabled` gate — flip the channel on/off
+     * from the dashboard and this reflects it (e.g. keep chat off at release, turn
+     * it on later; or disable it for maintenance).
+     *
+     * Fails **open** (`true`) on a network/parse error, matching the web behavior —
+     * a transient blip should not hide a working chat. Runs off the main thread;
+     * [completion] is delivered on the main thread.
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun fetchAvailability(
+        agentId: String,
+        environment: LoopsEnvironment = LoopsEnvironment.Production,
+        completion: (Boolean) -> Unit
+    ) {
+        val url = "${environment.baseUrl.trimEnd('/')}/api/embed/$agentId/style"
+        LoopsHttp.get(url) { response ->
+            val available = if (response.error != null || response.body == null) {
+                true
+            } else {
+                try {
+                    JSONObject(response.body).optBoolean("embedEnabled", true)
+                } catch (_: Exception) {
+                    true
+                }
+            }
+            Handler(Looper.getMainLooper()).post { completion(available) }
+        }
     }
 
     /**

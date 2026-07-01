@@ -23,6 +23,31 @@ internal object LoopsHttp {
         executor.execute { postBlocking(url, jsonBody, headers, timeoutMs = 15_000) }
     }
 
+    /** GET a URL and deliver the response on the background thread. */
+    fun get(url: String, timeoutMs: Int = 10_000, completion: (Response) -> Unit) {
+        executor.execute { completion(getBlocking(url, timeoutMs)) }
+    }
+
+    private fun getBlocking(url: String, timeoutMs: Int): Response {
+        var connection: HttpURLConnection? = null
+        return try {
+            connection = (URL(url).openConnection() as HttpURLConnection).apply {
+                requestMethod = "GET"
+                connectTimeout = timeoutMs
+                readTimeout = timeoutMs
+                setRequestProperty("Accept", "application/json")
+            }
+            val status = connection.responseCode
+            val stream = if (status in 200..299) connection.inputStream else connection.errorStream
+            val body = stream?.bufferedReader()?.use(BufferedReader::readText)
+            Response(status, body, null)
+        } catch (t: Throwable) {
+            Response(0, null, t)
+        } finally {
+            connection?.disconnect()
+        }
+    }
+
     /** POST a JSON body and deliver the response on the background thread. */
     fun post(
         url: String,

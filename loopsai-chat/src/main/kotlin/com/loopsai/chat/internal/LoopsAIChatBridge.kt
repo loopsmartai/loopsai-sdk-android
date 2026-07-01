@@ -137,6 +137,10 @@ internal class LoopsAIChatBridge(
             val key = keys.next()
             cfg.put(key, flags.get(key))
         }
+        // Preview overrides: load the runtime even when the web channel is inactive
+        // (mirrors the web widget's designMode / developmentMode). Only sent when on.
+        if (config.developmentMode) cfg.put("developmentMode", true)
+        if (config.designMode) cfg.put("designMode", true)
         send(webView, LoopsAIBridgeProtocol.NativeAction.INIT_CONFIG, JSONObject().put("config", cfg))
     }
 
