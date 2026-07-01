@@ -6,6 +6,23 @@ plugins {
     id("maven-publish")
 }
 
+// The published version follows the git tag JitPack checks out (e.g. tag `v1.0.2`
+// -> "1.0.2"), so the artifact's version always matches the requested coordinate.
+// Falls back to a default for local/untagged builds.
+val sdkVersion: String = run {
+    try {
+        val proc = ProcessBuilder("git", "describe", "--tags", "--abbrev=0")
+            .directory(rootDir)
+            .redirectErrorStream(true)
+            .start()
+        val tag = proc.inputStream.bufferedReader().use { it.readText() }.trim()
+        proc.waitFor()
+        tag.removePrefix("v").ifBlank { "1.0.0" }
+    } catch (e: Exception) {
+        "1.0.0"
+    }
+}
+
 android {
     namespace = "com.loopsai.chat"
     compileSdk = 35
@@ -74,7 +91,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.loopsai"
                 artifactId = "loopsai-chat"
-                version = "1.0.0"
+                version = sdkVersion
 
                 pom {
                     name.set("LoopsAI Chat SDK")

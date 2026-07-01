@@ -21,7 +21,9 @@ data class LoopsAIChatConfig(
     val locale: String? = null,
     val showCloseButton: Boolean = true,
     val startFresh: Boolean = false,
-    val keepAliveEnabled: Boolean = true
+    val keepAliveEnabled: Boolean = true,
+    val developmentMode: Boolean = false,
+    val designMode: Boolean = false
 ) {
     /**
      * Pool key for the warm WebView engine (CONTRACT B — performance). One running

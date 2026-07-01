@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — server-controlled availability
+
+- **`LoopsAIChat.fetchAvailability(agentId)`** — reports whether the agent's web
+  channel is active (mirrors the web widget's `embedEnabled`), so hosts can show/
+  hide their chat entry point and toggle chat from the dashboard without an app
+  update. Fails open on network errors.
+- **`developmentMode` / `designMode`** config flags — load the runtime even when
+  the channel is inactive (staging / QA / design preview).
+
 ### Changed — broader device support
 
 - **Lowered `minSdk` from 24 (Android 7.0) to 21 (Android 5.0)** so older host
