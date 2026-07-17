@@ -131,6 +131,9 @@ internal class LoopsAIChatBridge(
         // Merge any explicit flow-mode flag overrides; absent flags keep the
         // server-resolved agent config (CONTRACT B.3).
         val cfg = JSONObject().apply { put("alwaysShowCloseButton", false) }
+        if (config.showCloseButton) {
+            cfg.put("headerActionSlotWidthPx", HEADER_ACTION_SLOT_WIDTH_PX)
+        }
         val flags = config.features.payload()
         val keys = flags.keys()
         while (keys.hasNext()) {
@@ -157,5 +160,10 @@ internal class LoopsAIChatBridge(
         // Deliver to the web runtime's window message listener (mode=sdk).
         val js = "window.postMessage($envelope, '*');"
         mainHandler.post { webView.evaluateJavascript(js, null) }
+    }
+
+    private companion object {
+        // Close button footprint: 32dp + 16dp end margin; web reserves whatever native sends (iOS 56, Android 48).
+        const val HEADER_ACTION_SLOT_WIDTH_PX = 48
     }
 }

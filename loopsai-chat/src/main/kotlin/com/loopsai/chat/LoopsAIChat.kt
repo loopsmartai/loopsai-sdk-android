@@ -56,11 +56,10 @@ object LoopsAIChat {
     }
 
     /**
-     * Query whether the agent's web channel is **active** (server-controlled), so
+     * Query whether this Android SDK channel is **active** (server-controlled), so
      * you can show or hide your chat entry point without shipping an app update.
-     * This mirrors the web widget's `embedEnabled` gate — flip the channel on/off
-     * from the dashboard and this reflects it (e.g. keep chat off at release, turn
-     * it on later; or disable it for maintenance).
+     * Reads the per-platform `androidEnabled` flag from the dashboard, falling back
+     * to the web `embedEnabled` gate when the Android channel is unset.
      *
      * Fails **open** (`true`) on a network/parse error, matching the web behavior —
      * a transient blip should not hide a working chat. Runs off the main thread;
@@ -79,7 +78,12 @@ object LoopsAIChat {
                 true
             } else {
                 try {
-                    JSONObject(response.body).optBoolean("embedEnabled", true)
+                    val json = JSONObject(response.body)
+                    if (!json.isNull("androidEnabled")) {
+                        json.optBoolean("androidEnabled", true)
+                    } else {
+                        json.optBoolean("embedEnabled", true)
+                    }
                 } catch (_: Exception) {
                     true
                 }

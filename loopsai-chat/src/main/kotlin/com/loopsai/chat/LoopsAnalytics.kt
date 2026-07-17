@@ -35,7 +35,7 @@ class LoopsAnalyticsDispatcher internal constructor(
 
 /**
  * Always-on sink → our backend ingest (Firestore via a `functions` endpoint,
- * CONTRACT Part A). Carries the canonical event unrelabelled.
+ * CONTRACT Part A / TASK-0011). Carries the canonical event unrelabelled.
  *
  * Mirror of the iOS `LoopsSinkAdapter`.
  */

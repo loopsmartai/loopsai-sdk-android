@@ -18,11 +18,11 @@ class LoopsAnalyticsTest {
     )
 
     @Test
-    fun `forces channel mobile_app and schema_version on every event (CONTRACT Part A)`() {
+    fun `forces channel android and schema_version on every event (CONTRACT Part A)`() {
         val payload = JSONObject().put("event", JSONObject().put("event", "loops_ai_view_item_list").put("channel", "web"))
         val event = LoopsAnalyticsEvent.from(payload, context)!!
-        assertEquals("mobile_app", event.channel)
-        assertEquals("mobile_app", event.payload.optString("channel"))
+        assertEquals("android", event.channel)
+        assertEquals("android", event.payload.optString("channel"))
         assertEquals("1.0", event.payload.optString("schema_version"))
         assertEquals("loops_ai_view_item_list", event.event)
     }
@@ -43,6 +43,29 @@ class LoopsAnalyticsTest {
         assertEquals("15", event.payload.optString("os_version"))
         assertEquals("anon1", event.payload.optString("anon_user_id"))
         assertEquals("cnv1", event.payload.optString("loops_conversation_id"))
+    }
+
+    @Test
+    fun `reads interaction kind from the payload level`() {
+        val payload = JSONObject().put("kind", "interaction").put("event", JSONObject().put("event", "loops_ai_message_sent"))
+        val event = LoopsAnalyticsEvent.from(payload, context)!!
+        assertEquals("interaction", event.kind)
+        assertEquals("interaction", event.payload.optString("kind"))
+    }
+
+    @Test
+    fun `reads interaction kind from the event envelope`() {
+        val payload = JSONObject().put("event", JSONObject().put("event", "loops_ai_message_sent").put("kind", "interaction"))
+        val event = LoopsAnalyticsEvent.from(payload, context)!!
+        assertEquals("interaction", event.kind)
+        assertEquals("interaction", event.payload.optString("kind"))
+    }
+
+    @Test
+    fun `defaults kind to ecommerce when absent`() {
+        val payload = JSONObject().put("event", JSONObject().put("event", "loops_ai_view_item_list"))
+        val event = LoopsAnalyticsEvent.from(payload, context)!!
+        assertEquals("ecommerce", event.kind)
     }
 
     @Test

@@ -9,10 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added — server-controlled availability
 
-- **`LoopsAIChat.fetchAvailability(agentId)`** — reports whether the agent's web
-  channel is active (mirrors the web widget's `embedEnabled`), so hosts can show/
-  hide their chat entry point and toggle chat from the dashboard without an app
-  update. Fails open on network errors.
+- **`LoopsAIChat.fetchAvailability(agentId)`** — reports whether the agent is
+  active for this platform. Reads the Android channel's own Active/Passive status
+  and falls back to the web channel when the Android channel is unset, so hosts
+  can show/hide their chat entry point and toggle Android independently of web and
+  iOS from the dashboard, without an app update. Fails open on network errors.
 - **`developmentMode` / `designMode`** config flags — load the runtime even when
   the channel is inactive (staging / QA / design preview).
 
@@ -41,6 +42,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Analytics channel is now `"android"`** (was `"mobile_app"`): canonical events
+  are relabelled with the per-platform channel, following the platform split of
+  the former single mobile channel. Events also carry a **`kind`** field
+  (`"ecommerce"` | `"interaction"`) discriminating canonical ecommerce events
+  from customer-interaction events; it defaults to `"ecommerce"` when absent.
 - **Production-only environment**: the SDK now targets `chat.loopsai.com`
   everywhere. `LoopsEnvironment.Test` was removed; `Production` and `Custom(url)`
   remain.
@@ -52,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2026-06-25
 
-### Added — v2 contract parity with the iOS SDK
+### Added — v2 contract parity with the iOS SDK (TASK-0012)
 
 Mirrors the frozen iOS public API (CONTRACT Part A + Part B). Both platforms now
 emit identical canonical analytics events and speak the same typed bridge.

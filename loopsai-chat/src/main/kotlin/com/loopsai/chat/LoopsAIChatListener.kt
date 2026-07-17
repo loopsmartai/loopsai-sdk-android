@@ -20,7 +20,7 @@ interface LoopsAIChatListener {
 
     /**
      * A canonical analytics event crossed the bridge (CONTRACT Part A,
-     * `channel:"mobile_app"`). Delivered as-is — the SDK dictates the shape.
+     * `channel:"android"`). Delivered as-is — the SDK dictates the shape.
      */
     fun onAnalyticsEvent(fragment: LoopsAIChatFragment, event: LoopsAnalyticsEvent) {}
 

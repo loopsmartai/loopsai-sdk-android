@@ -3,6 +3,7 @@ package com.loopsai.chat.internal
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.MutableContextWrapper
+import android.os.Message
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
@@ -70,6 +71,8 @@ internal class LoopsChatEngine(
             javaScriptEnabled = true
             domStorageEnabled = true
             mediaPlaybackRequiresUserGesture = false
+            javaScriptCanOpenWindowsAutomatically = true
+            setSupportMultipleWindows(true)
         }
 
         if (BuildConfig.DEBUG) {
@@ -90,8 +93,8 @@ internal class LoopsChatEngine(
                 val url = request?.url ?: return true
                 val host = url.host ?: return true
                 if (config.allowedHosts.contains(host)) return false
-                // Foreign link → open outside the WebView (CONTRACT B.6).
-                presenter?.let { it.listener?.onOpenUrlRequested(it, url.toString()) }
+                // Foreign link → surface to the host, else in-app browser (CONTRACT B.6).
+                routeOutboundUrl(url.toString())
                 return true
             }
 
@@ -121,7 +124,32 @@ internal class LoopsChatEngine(
                     request.deny()
                 }
             }
+
+            override fun onCreateWindow(
+                view: WebView?,
+                isDialog: Boolean,
+                isUserGesture: Boolean,
+                resultMsg: Message?
+            ): Boolean {
+                // `target="_blank"` / `window.open` never reach shouldOverrideUrlLoading; a throwaway WebView captures the target URL and routes it out instead.
+                val transport = resultMsg?.obj as? WebView.WebViewTransport ?: return false
+                val probe = WebView(view?.context ?: webView.context)
+                probe.webViewClient = object : WebViewClient() {
+                    override fun shouldOverrideUrlLoading(v: WebView?, request: WebResourceRequest?): Boolean {
+                        request?.url?.toString()?.let { routeOutboundUrl(it) }
+                        probe.post { probe.destroy() }
+                        return true
+                    }
+                }
+                transport.webView = probe
+                resultMsg.sendToTarget()
+                return true
+            }
         }
+    }
+
+    private fun routeOutboundUrl(url: String) {
+        presenter?.let { it.listener?.onOpenUrlRequested(it, url) }
     }
 
     fun load(url: String) {
@@ -171,7 +199,7 @@ internal class LoopsChatEngine(
     }
 
     override fun onOpenUrlRequested(url: String) {
-        presenter?.let { it.listener?.onOpenUrlRequested(it, url) }
+        routeOutboundUrl(url)
     }
 
     override fun onMessageEvent(event: Map<String, Any?>) {

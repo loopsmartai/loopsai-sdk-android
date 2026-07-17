@@ -8,7 +8,7 @@ import org.json.JSONObject
  * The canonical analytics event (CONTRACT Part A, `schema_version "1.0"`),
  * received from the web runtime over the `trackEvent` bridge action and
  * re-dispatched natively. On mobile the SDK **dictates the shape** (OPEN #2,
- * resolved): [channel] is forced to `"mobile_app"` and native context
+ * resolved): [channel] is forced to `"android"` and native context
  * (`app_version`, `device`, `os_version`) is attached.
  *
  * Mirror of the iOS `LoopsAnalyticsEvent`.
@@ -16,8 +16,10 @@ import org.json.JSONObject
 class LoopsAnalyticsEvent private constructor(
     /** Canonical event name (e.g. `loops_ai_view_item_list`). */
     val event: String,
-    /** Always `"mobile_app"` on native. */
+    /** Always `"android"` on native. */
     val channel: String,
+    /** Discriminates canonical ecommerce events from customer-interaction events; defaults to `"ecommerce"`. */
+    val kind: String,
     /**
      * The full canonical payload (Part A envelope) with `channel` + native
      * context applied — ready for adapters and the host callback.
@@ -26,7 +28,7 @@ class LoopsAnalyticsEvent private constructor(
 ) {
     companion object {
         const val SCHEMA_VERSION = "1.0"
-        const val CHANNEL = "mobile_app"
+        const val CHANNEL = "android"
 
         /**
          * Builds a canonical event from a `trackEvent` bridge payload. The web
@@ -38,17 +40,22 @@ class LoopsAnalyticsEvent private constructor(
             val name = raw.optString("event")
             if (name.isEmpty()) return null
 
+            val kind = raw.optString("kind")
+                .ifEmpty { bridgePayload.optString("kind") }
+                .ifEmpty { "ecommerce" }
+
             // Copy raw → merged so we never mutate the inbound payload.
             val merged = JSONObject(raw.toString())
             merged.put("schema_version", SCHEMA_VERSION)
             merged.put("channel", CHANNEL)
+            merged.put("kind", kind)
             val fields = context.fields()
             val keys = fields.keys()
             while (keys.hasNext()) {
                 val key = keys.next()
                 if (!merged.has(key)) merged.put(key, fields.get(key))
             }
-            return LoopsAnalyticsEvent(name, CHANNEL, merged)
+            return LoopsAnalyticsEvent(name, CHANNEL, kind, merged)
         }
     }
 }
