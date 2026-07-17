@@ -6,6 +6,13 @@
 
 The official Android SDK for [LoopsAI](https://loopsai.com) — embed AI-powered chat into any Android app with a few lines of code. Supports both **Views/Fragments** and **Jetpack Compose**.
 
+> 🔒 **Internal repository — source of truth.** This is the private development
+> repo (`loopsmartai/loopsai-sdk-android-internal`). External consumers use the
+> public mirror: **[`loopsmartai/loopsai-sdk-android`](https://github.com/loopsmartai/loopsai-sdk-android)**.
+> All development happens here and is mirrored to public by replacing files.
+> Work through the `develop` branch — never push to `main` directly. See
+> [`AGENTS.md`](AGENTS.md) for the full internal/public workflow.
+> _(This block is stripped when mirroring to the public repo.)_
 
 ---
 
@@ -29,7 +36,7 @@ Add the dependency to your app-level `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.loopsmartai:loopsai-sdk-android:1.0.2")
+    implementation("com.github.loopsmartai:loopsai-sdk-android-internal:1.0.2")
 }
 ```
 
@@ -125,8 +132,8 @@ class MainActivity : AppCompatActivity() {
 | `designMode` | `Boolean` | No | `false` | Same override for design/preview builds |
 
 > Mirrors the iOS SDK's public API (shared `CONTRACT` v1). Both platforms speak
-> the same typed bridge and emit identical canonical analytics events
-> (`channel: "mobile_app"`).
+> the same typed bridge and emit canonical analytics events of the same shape,
+> labelled with their own channel (`channel: "android"` here, `"ios"` on iOS).
 
 ---
 
@@ -231,8 +238,9 @@ fragment.closeOverlays()                 // close overlays on a back gesture
 
 ## Availability (server-controlled on/off)
 
-Turn chat on/off from the dashboard **without an app update** — mirrors the web
-widget's active/inactive channel. Query it before showing your chat entry point:
+Turn chat on/off from the dashboard **without an app update** — the Android
+channel has its own Active/Passive toggle in the Channels tab, independent of web
+and iOS. Query it before showing your chat entry point:
 
 ```kotlin
 LoopsAIChat.fetchAvailability("your_agent_id") { available ->
@@ -271,7 +279,7 @@ LoopsAIChat.resetAllData(context)
 | `onReady(fragment)` | Bridge is live and context applied |
 | `onMessageEvent(fragment, event)` | A chat message / overlay frame crossed the bridge |
 | `onResponding(fragment, isResponding)` | Bot started/stopped responding |
-| `onAnalyticsEvent(fragment, event)` | Canonical analytics event (`channel: "mobile_app"`) |
+| `onAnalyticsEvent(fragment, event)` | Canonical analytics event (`channel: "android"`) |
 | `onProductQuoteChanged(fragment, quote)` | Active product quote changed (`null` = cleared) |
 | `onConversationActive(fragment)` | A conversation became active |
 | `onError(fragment, error)` | Load / bridge / session error |
@@ -307,7 +315,7 @@ LoopsAIChatView(
 
 Analytics flow **through the SDK** on the shared canonical schema (CONTRACT
 Part A). The web runtime's events cross the bridge, are relabelled with
-`channel: "mobile_app"` + native context (`app_version`/`device`/`os_version`),
+`channel: "android"` + native context (`app_version`/`device`/`os_version`),
 and fan out to an always-on Loops sink plus an optional customer adapter:
 
 ```kotlin

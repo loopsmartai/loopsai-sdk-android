@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.MutableContextWrapper
 import android.content.res.Configuration
 import android.net.Uri
+import androidx.browser.customtabs.CustomTabsIntent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -324,10 +325,15 @@ open class LoopsAIChatFragment : Fragment() {
     }
 
     internal fun openExternalUrl(url: String) {
+        val ctx = context ?: return
+        val uri = Uri.parse(url)
         try {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            CustomTabsIntent.Builder().build().launchUrl(ctx, uri)
         } catch (_: Exception) {
-            // No activity found to handle the URL.
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, uri))
+            } catch (_: Exception) {
+            }
         }
     }
 
