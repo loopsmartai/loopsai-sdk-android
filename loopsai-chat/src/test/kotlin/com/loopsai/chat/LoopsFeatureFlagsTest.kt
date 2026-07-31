@@ -13,7 +13,7 @@ class LoopsFeatureFlagsTest {
     }
 
     @Test
-    fun `only explicitly-set flags are forwarded (CONTRACT B3 overrides-only)`() {
+    fun `only explicitly-set flags are forwarded (overrides-only)`() {
         val payload = LoopsFeatureFlags(searchEscalationEnabled = true, virtualTryOnEnabled = false).payload()
         assertEquals(2, payload.length())
         assertTrue(payload.getBoolean("searchEscalationEnabled"))

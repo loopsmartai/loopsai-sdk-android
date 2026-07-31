@@ -58,31 +58,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2026-06-25
 
-### Added — v2 contract parity with the iOS SDK (TASK-0012)
+### Added — v2 contract parity with the iOS SDK
 
-Mirrors the frozen iOS public API (CONTRACT Part A + Part B). Both platforms now
-emit identical canonical analytics events and speak the same typed bridge.
+Mirrors the frozen iOS public API. Both platforms now emit identical canonical
+analytics events and speak the same typed bridge.
 
 - **Typed bridge envelope v1** (`LoopsAIBridgeProtocol`): native channel uses
-  `{ protocolVersion, type:"nativeAction", name, requestId, payload }`. Full B.2
-  web→native + B.3 native→web action allowlists; unknown names ignored.
-- **Native session ownership (B.4)**: `LoopsSessionStore` (SharedPreferences) +
+  `{ protocolVersion, type:"nativeAction", name, requestId, payload }`. Full
+  web→native + native→web action allowlists; unknown names ignored.
+- **Native session ownership**: `LoopsSessionStore` (SharedPreferences) +
   `POST /api/widget/session` bootstrap with retry/backoff (3 attempts, transient
   /5xx only); `_lsuid` / `_lscid` re-injected on every load; `persistSession`.
-- **Part A analytics**: `LoopsAnalyticsEvent` (forces `channel:"mobile_app"` +
+- **Canonical analytics**: `LoopsAnalyticsEvent` (forces `channel:"mobile_app"` +
   `schema_version "1.0"` + `app_version`/`device`/`os_version`),
   `LoopsAnalyticsDispatcher` (always-on `LoopsSinkAdapter` + optional customer
   adapter), `HttpWebhookAdapter`, `BlockAnalyticsAdapter` (Firebase/Mixpanel/
   Segment without a core dependency), `LoopsAnalyticsConfig`.
-- **Full host callbacks (B.5)** on `LoopsAIChatListener`: `onReady`,
+- **Full host callbacks** on `LoopsAIChatListener`: `onReady`,
   `onMessageEvent`, `onResponding`, `onAnalyticsEvent`, `onProductQuoteChanged`,
   `onConversationActive`, `onError` (+ `onCloseRequested`/`onOpenUrlRequested`).
-- **Flow-mode parity (B.3)**: `openWithSearch`, `startTryOnFromQuote`,
+- **Flow-mode parity**: `openWithSearch`, `startTryOnFromQuote`,
   `openVoiceMode` (with allowlisted mic-capture grant), `startVirtualTryOn`,
   `suggestSize`, `sendMessage`, `updateContext`; `LoopsFeatureFlags` forwarded
   via `initConfig` (overrides only when set).
 - **`LoopsEnvironment`** (`Production`/`Test`/`Custom`) replaces the raw
-  `baseURL` string; origin allowlist includes the custom host (B.6).
+  `baseURL` string; origin allowlist includes the custom host.
 - `LoopsProductQuote`, `LoopsError` types added.
 
 ### Changed

@@ -1,18 +1,10 @@
-# LoopsAI Chat SDK for Android
+# Loops AI Chat SDK for Android
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-blue.svg)](https://kotlinlang.org)
 [![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-green.svg)](https://developer.android.com)
 [![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
 
-The official Android SDK for [LoopsAI](https://loopsai.com) — embed AI-powered chat into any Android app with a few lines of code. Supports both **Views/Fragments** and **Jetpack Compose**.
-
-> 🔒 **Internal repository — source of truth.** This is the private development
-> repo (`loopsmartai/loopsai-sdk-android-internal`). External consumers use the
-> public mirror: **[`loopsmartai/loopsai-sdk-android`](https://github.com/loopsmartai/loopsai-sdk-android)**.
-> All development happens here and is mirrored to public by replacing files.
-> Work through the `develop` branch — never push to `main` directly. See
-> [`AGENTS.md`](AGENTS.md) for the full internal/public workflow.
-> _(This block is stripped when mirroring to the public repo.)_
+The official Android SDK for [Loops AI](https://loopsai.com) — embed AI-powered chat into any Android app with a few lines of code. Supports both **Views/Fragments** and **Jetpack Compose**.
 
 ---
 
@@ -36,17 +28,7 @@ Add the dependency to your app-level `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.loopsmartai:loopsai-sdk-android-internal:1.0.2")
-}
-```
-
-### Direct AAR
-
-For private distributions, download the release AAR from GitHub Releases and add it to your `libs/` folder:
-
-```kotlin
-dependencies {
-    implementation(files("libs/loopsai-chat-1.0.0.aar"))
+    implementation("com.github.loopsmartai:loopsai-sdk-android:1.0.4")
 }
 ```
 
@@ -119,7 +101,7 @@ class MainActivity : AppCompatActivity() {
 
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `agentId` | `String` | Yes | — | Your LoopsAI agent identifier |
+| `agentId` | `String` | Yes | — | Your Loops AI agent identifier |
 | `environment` | `LoopsEnvironment` | No | `Production` | `Production` (chat.loopsai.com) or `Custom(url)` (on-prem) |
 | `initialContext` | `LoopsAIChatContext` | No | `null` | Product and user context |
 | `features` | `LoopsFeatureFlags` | No | `DEFAULT` | Flow-mode overrides (VTO/search/…); absent flags defer to server config |
@@ -131,7 +113,7 @@ class MainActivity : AppCompatActivity() {
 | `developmentMode` | `Boolean` | No | `false` | Load the chat even when the agent's web channel is inactive (staging/QA) |
 | `designMode` | `Boolean` | No | `false` | Same override for design/preview builds |
 
-> Mirrors the iOS SDK's public API (shared `CONTRACT` v1). Both platforms speak
+> Mirrors the iOS SDK's public API. Both platforms speak
 > the same typed bridge and emit canonical analytics events of the same shape,
 > labelled with their own channel (`channel: "android"` here, `"ios"` on iOS).
 
@@ -272,7 +254,7 @@ LoopsAIChat.resetAllData(context)
 ## Listener
 
 `LoopsAIChatListener` notifies your app of chat lifecycle and native actions
-(CONTRACT B.5 — mirrors the iOS `LoopsAIChatDelegate`):
+(mirrors the iOS `LoopsAIChatDelegate`):
 
 | Method | Description |
 |---|---|
@@ -296,7 +278,7 @@ class MyActivity : AppCompatActivity(), LoopsAIChatListener {
     }
 
     override fun onAnalyticsEvent(fragment: LoopsAIChatFragment, event: LoopsAnalyticsEvent) {
-        // event.event, event.payload (canonical Part A shape)
+        // event.event, event.payload (canonical event shape)
     }
 }
 
@@ -313,8 +295,8 @@ LoopsAIChatView(
 
 ## Analytics
 
-Analytics flow **through the SDK** on the shared canonical schema (CONTRACT
-Part A). The web runtime's events cross the bridge, are relabelled with
+Analytics flow **through the SDK** on the shared canonical schema. The web
+runtime's events cross the bridge, are relabelled with
 `channel: "android"` + native context (`app_version`/`device`/`os_version`),
 and fan out to an always-on Loops sink plus an optional customer adapter:
 
@@ -345,10 +327,10 @@ Built-in adapters: `LoopsSinkAdapter`, `HttpWebhookAdapter` (raw JSON POST),
 
 ## Security
 
-- The WebView only loads content from LoopsAI-owned domains
+- The WebView only loads content from Loops AI-owned domains
 - Bridge uses `WebViewCompat.addWebMessageListener` with origin allowlisting (primary), falling back to `addJavascriptInterface` only when needed
 - External URLs are opened in the default browser, never inside the SDK WebView
-- The SDK natively owns the anonymous session (CONTRACT B.4): the pseudonymous
+- The SDK natively owns the anonymous session: the pseudonymous
   anon id + last conversation id are persisted in app-private `SharedPreferences`
   and re-injected (`_lsuid` / `_lscid`) on every load, so the session survives
   WebView storage clears and app relaunch. No auth credentials/tokens are stored

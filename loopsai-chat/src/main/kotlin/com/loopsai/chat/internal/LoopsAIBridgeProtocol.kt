@@ -3,7 +3,7 @@ package com.loopsai.chat.internal
 import org.json.JSONObject
 
 /**
- * The frozen `mode=sdk` bridge protocol (CONTRACT Part B, native channel).
+ * The frozen `mode=sdk` bridge protocol (native channel).
  *
  * The native channel (`loopsAIBridge`) uses a **typed envelope**:
  * ```jsonc
@@ -14,7 +14,7 @@ import org.json.JSONObject
  * separate transport the SDK never touches.
  *
  * Mirror of the iOS `LoopsAIBridgeProtocol`. Bump [VERSION] only via a
- * coordinated web + iOS + Android update (CONTRACT change policy).
+ * coordinated web + iOS + Android update.
  */
 internal object LoopsAIBridgeProtocol {
     /** Bump only via a coordinated web + iOS + Android update. */
@@ -24,7 +24,7 @@ internal object LoopsAIBridgeProtocol {
     const val MESSAGE_TYPE = "nativeAction"
 
     /**
-     * Web → native action names the SDK handles (CONTRACT B.2 allowlist).
+     * Web → native action names the SDK handles (inbound allowlist).
      * Anything not listed here is ignored.
      */
     enum class WebAction(val raw: String) {
@@ -34,7 +34,7 @@ internal object LoopsAIBridgeProtocol {
         OPEN_MODULE("openModule"),
         OPEN_EXTERNAL_URL("openExternalUrl"),
         REQUEST_TOKEN_REFRESH("requestTokenRefresh"),
-        TRACK_EVENT("trackEvent"),                  // analytics passthrough → Part A
+        TRACK_EVENT("trackEvent"),                  // analytics passthrough
         RESPONDING_STATE_CHANGE("respondingStateChange"),
         PRODUCT_QUOTE_CHANGED("productQuoteChanged"),
         CONVERSATION_ACTIVE("conversationActive"),
@@ -49,7 +49,7 @@ internal object LoopsAIBridgeProtocol {
         }
     }
 
-    /** Native → web action names the SDK sends (CONTRACT B.3). */
+    /** Native → web action names the SDK sends. */
     enum class NativeAction(val raw: String) {
         INIT_CONFIG("initConfig"),
         INIT_CONTEXT("initContext"),
@@ -63,7 +63,7 @@ internal object LoopsAIBridgeProtocol {
         SYNC_CUSTOMER_DETAILS("syncCustomerDetails"),
         SET_WEBSITE_FONT("setWebsiteFont"),
         START_VOICE_MODE("startVoiceMode"),          // reserved — server-gated, no public entry point
-        SET_ANALYTICS_CONSENT("setAnalyticsConsent"), // host CMP consent → web A.4 consent gate
+        SET_ANALYTICS_CONSENT("setAnalyticsConsent"), // host CMP consent → web consent gate
         CLEAR_PRODUCT_QUOTE("clearProductQuote"),    // clear the active quote chip
         CLOSE_OVERLAYS("closeOverlays"),             // dispatch loopsai:close-overlays in the runtime
         MOBILE_STATE_CHANGE("mobileStateChange");    // rotation / size change → re-evaluate layout
