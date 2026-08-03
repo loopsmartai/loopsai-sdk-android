@@ -28,7 +28,7 @@ Add the dependency to your app-level `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.loopsmartai:loopsai-sdk-android:1.0.4")
+    implementation("com.github.loopsmartai:loopsai-sdk-android:1.0.5")
 }
 ```
 

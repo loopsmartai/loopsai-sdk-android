@@ -38,6 +38,31 @@ class LoopsAIChatConfigTest {
     }
 
     @Test
+    fun `chatUrl normalizes a regional locale to its base language`() {
+        for (raw in listOf("tr_TR", "tr-TR", "TR", " tr ")) {
+            val url = LoopsAIChatConfig(agentId = "agt", locale = raw).chatUrl(null, null)
+            assertTrue("expected locale=tr for $raw", url.contains("locale=tr"))
+            assertFalse(url.lowercase().contains("tr_tr"))
+            assertFalse(url.lowercase().contains("tr-tr"))
+        }
+    }
+
+    @Test
+    fun `chatUrl omits a blank locale`() {
+        assertFalse(
+            LoopsAIChatConfig(agentId = "agt", locale = "   ").chatUrl(null, null).contains("locale")
+        )
+    }
+
+    @Test
+    fun `webCacheKey ignores locale spelling`() {
+        assertEquals(
+            LoopsAIChatConfig(agentId = "agt", locale = "tr-TR").webCacheKey,
+            LoopsAIChatConfig(agentId = "agt", locale = "tr").webCacheKey
+        )
+    }
+
+    @Test
     fun `default environment is production`() {
         assertEquals("https://chat.loopsai.com", LoopsAIChatConfig(agentId = "agt").baseUrl)
     }
