@@ -26,7 +26,7 @@ data class LoopsAIChatConfig(
     val designMode: Boolean = false
 ) {
     /**
-     * Pool key for the warm WebView engine (CONTRACT B — performance). One running
+     * Pool key for the warm WebView engine. One running
      * runtime per agent + environment + locale, so reopening the same chat reuses it.
      */
     internal val webCacheKey: String get() = "$agentId|$baseUrl|${locale ?: ""}"
@@ -51,7 +51,7 @@ data class LoopsAIChatConfig(
 
     /**
      * Builds the `mode=sdk` chat URL, re-injecting the natively-owned session
-     * (`_lsuid` / `_lscid`) on every load (CONTRACT B.4).
+     * (`_lsuid` / `_lscid`) on every load.
      *
      * Built with pure-JVM string assembly (no `android.net.Uri`) so it is
      * unit-testable without Robolectric, mirroring iOS's pure `URLComponents`.

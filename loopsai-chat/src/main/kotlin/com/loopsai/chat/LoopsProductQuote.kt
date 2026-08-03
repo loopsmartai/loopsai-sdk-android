@@ -1,7 +1,7 @@
 package com.loopsai.chat
 
 /**
- * A product quote surfaced by the web runtime (CONTRACT B.2 `productQuoteChanged`).
+ * A product quote surfaced by the web runtime (`productQuoteChanged`).
  * A `null` quote (in the callback) means the quote was cleared.
  *
  * Mirror of the iOS `LoopsProductQuote`.

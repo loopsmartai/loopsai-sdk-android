@@ -11,7 +11,7 @@ import org.junit.Test
 class LoopsBridgeProtocolTest {
 
     @Test
-    fun `parses a well-formed typed nativeAction envelope (CONTRACT B1)`() {
+    fun `parses a well-formed typed nativeAction envelope`() {
         val body = JSONObject()
             .put("protocolVersion", 1)
             .put("type", "nativeAction")
@@ -52,14 +52,14 @@ class LoopsBridgeProtocolTest {
     }
 
     @Test
-    fun `web action allowlist resolves known names and ignores unknown (CONTRACT B2)`() {
+    fun `web action allowlist resolves known names and ignores unknown`() {
         assertEquals(LoopsAIBridgeProtocol.WebAction.TRACK_EVENT, LoopsAIBridgeProtocol.WebAction.from("trackEvent"))
         assertEquals(LoopsAIBridgeProtocol.WebAction.PERSIST_SESSION, LoopsAIBridgeProtocol.WebAction.from("persistSession"))
         assertNull(LoopsAIBridgeProtocol.WebAction.from("notARealAction"))
     }
 
     @Test
-    fun `native action raws match the frozen B3 names`() {
+    fun `native action raws match the frozen native-to-web names`() {
         assertEquals("searchEscalation", LoopsAIBridgeProtocol.NativeAction.SEARCH_ESCALATION.raw)
         assertEquals("startTryOnFromQuote", LoopsAIBridgeProtocol.NativeAction.START_TRY_ON_FROM_QUOTE.raw)
         assertEquals("quoteProduct", LoopsAIBridgeProtocol.NativeAction.QUOTE_PRODUCT.raw)

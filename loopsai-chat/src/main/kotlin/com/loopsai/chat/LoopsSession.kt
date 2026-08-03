@@ -6,7 +6,7 @@ import com.loopsai.chat.internal.LoopsHttp
 import org.json.JSONObject
 
 /**
- * Native ownership of the anonymous widget session (CONTRACT B.4).
+ * Native ownership of the anonymous widget session.
  *
  * Mobile WebViews can drop partitioned web storage, so the web runtime cannot
  * reliably keep the anon session in `mode=sdk`. The SDK persists it natively and
@@ -14,7 +14,7 @@ import org.json.JSONObject
  *
  * Mirror of the iOS `LoopsSessionStore` (Keychain). Android uses app-private
  * [SharedPreferences] (the iOS `Security` analogue sanctioned for the
- * pseudonymous anon id — see the SDK README / Atlas Remaining for the optional
+ * pseudonymous anon id — see the SDK README for the optional
  * `EncryptedSharedPreferences` hardening note).
  */
 class LoopsSessionStore internal constructor(private val prefs: SharedPreferences) {
@@ -50,7 +50,7 @@ class LoopsSessionStore internal constructor(private val prefs: SharedPreference
         prefs.edit().clear().apply()
     }
 
-    /** Applies a `persistSession` payload from the web runtime (CONTRACT B.2). */
+    /** Applies a `persistSession` payload from the web runtime. */
     internal fun applyPersistSession(payload: JSONObject) {
         payload.optString("anonUserId").takeIf { it.isNotEmpty() }?.let { anonUserId = it }
         val agentId = payload.optString("agentId")
@@ -75,8 +75,8 @@ class LoopsSessionStore internal constructor(private val prefs: SharedPreference
 }
 
 /**
- * Bootstraps the anon session against `POST /api/widget/session` (CONTRACT B.4),
- * migrating any locally-stored legacy id, then caches the result in the store.
+ * Bootstraps the anon session against `POST /api/widget/session`, migrating any
+ * locally-stored legacy id, then caches the result in the store.
  *
  * Mirror of the iOS `LoopsSessionBootstrapper`: 1 try + 2 retries, exponential
  * backoff, retrying transport errors and 5xx only (never a 4xx caller error).

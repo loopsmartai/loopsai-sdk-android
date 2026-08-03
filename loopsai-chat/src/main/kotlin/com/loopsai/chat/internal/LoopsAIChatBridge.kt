@@ -9,7 +9,7 @@ import com.loopsai.chat.LoopsProductQuote
 import org.json.JSONObject
 
 /**
- * Native side of the `mode=sdk` bridge (CONTRACT Part B, native channel).
+ * Native side of the `mode=sdk` bridge (native channel).
  *
  * Inbound: decodes the typed envelope, enforces the name allowlist, and routes to
  * the [BridgeHost] (origin allowlist + main-frame are enforced one layer up by
@@ -129,7 +129,7 @@ internal class LoopsAIChatBridge(
 
     fun sendInitConfig(webView: WebView) {
         // Merge any explicit flow-mode flag overrides; absent flags keep the
-        // server-resolved agent config (CONTRACT B.3).
+        // server-resolved agent config.
         val cfg = JSONObject().apply { put("alwaysShowCloseButton", false) }
         if (config.showCloseButton) {
             cfg.put("headerActionSlotWidthPx", HEADER_ACTION_SLOT_WIDTH_PX)

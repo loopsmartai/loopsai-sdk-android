@@ -4,7 +4,7 @@ import org.json.JSONObject
 
 /**
  * Optional flow-mode feature-flag overrides forwarded to the web runtime via
- * `initConfig` (CONTRACT B.3). Each flag is optional: when `null` the SDK sends
+ * `initConfig`. Each flag is optional: when `null` the SDK sends
  * nothing for it and the **server-resolved agent config** decides. Set a flag
  * only to deliberately override per launch.
  *

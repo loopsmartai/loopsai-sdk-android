@@ -3,8 +3,9 @@ package com.loopsai.chat
 import com.loopsai.chat.internal.LoopsHttp
 
 /**
- * A transport for canonical analytics events (CONTRACT Part A). Each adapter
- * relabels/delivers to one target; the dispatcher never knows the target.
+ * A transport for canonical analytics events — the event schema shared with the
+ * web runtime. Each adapter relabels/delivers to one target; the dispatcher
+ * never knows the target.
  *
  * Mirror of the iOS `LoopsAnalyticsAdapter`. Implementations may run delivery off
  * the main thread, so they must be safe to share.
@@ -16,7 +17,7 @@ interface LoopsAnalyticsAdapter {
 
 /**
  * Fans a canonical event out to the always-on Loops sink plus an optional
- * per-agent customer adapter (CONTRACT Part A, mirrors the web dispatcher).
+ * per-agent customer adapter (mirrors the web dispatcher).
  * The sink is isolated: a customer adapter can never suppress it.
  *
  * Mirror of the iOS `LoopsAnalyticsDispatcher`.
@@ -34,8 +35,8 @@ class LoopsAnalyticsDispatcher internal constructor(
 // MARK: - Built-in adapters
 
 /**
- * Always-on sink → our backend ingest (Firestore via a `functions` endpoint,
- * CONTRACT Part A / TASK-0011). Carries the canonical event unrelabelled.
+ * Always-on sink → our backend ingest (Firestore via a `functions` endpoint).
+ * Carries the canonical event unrelabelled.
  *
  * Mirror of the iOS `LoopsSinkAdapter`.
  */
@@ -84,8 +85,8 @@ class BlockAnalyticsAdapter(
 
 /**
  * Per-agent analytics configuration: which always-on sink and which customer
- * adapter to fan out to (CONTRACT A.3 selection happens server-side; the SDK is
- * told the resolved choice here — no per-customer native code).
+ * adapter to fan out to (selection happens server-side; the SDK is told the
+ * resolved choice here — no per-customer native code).
  *
  * Mirror of the iOS `LoopsAnalyticsConfig`.
  */

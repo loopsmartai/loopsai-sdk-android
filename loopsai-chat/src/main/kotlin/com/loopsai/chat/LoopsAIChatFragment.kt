@@ -23,7 +23,7 @@ import org.json.JSONObject
  * The chat container fragment — the Android analogue of the iOS
  * `LoopsAIChatViewController`. It borrows a warm [LoopsChatEngine] (which owns the
  * WebView, bridge, session and analytics), exposes the same public methods, and
- * routes the same host callbacks (CONTRACT Part B).
+ * routes the same host callbacks.
  */
 open class LoopsAIChatFragment : Fragment() {
 
@@ -45,7 +45,7 @@ open class LoopsAIChatFragment : Fragment() {
             LoopsAIChatRegistry.setListener(token, value)
         }
 
-    /** Natively-owned anonymous session (CONTRACT B.4). */
+    /** Natively-owned anonymous session. */
     lateinit var sessionStore: LoopsSessionStore
         private set
 
@@ -140,7 +140,7 @@ open class LoopsAIChatFragment : Fragment() {
     // MARK: - Session + load
 
     /**
-     * Resolves the anon session natively (CONTRACT B.4), then loads the runtime
+     * Resolves the anon session natively, then loads the runtime
      * with `_lsuid` / `_lscid` injected. Falls back to the cached session (or none)
      * if bootstrap fails — the web runtime can still self-bootstrap.
      */
@@ -220,13 +220,13 @@ open class LoopsAIChatFragment : Fragment() {
         sendIfReady(LoopsAIBridgeProtocol.NativeAction.START_VIRTUAL_TRY_ON, JSONObject().put("product", JSONObject(product)))
     }
 
-    /** Try on the product currently quoted in the conversation (CONTRACT B.3). */
+    /** Try on the product currently quoted in the conversation. */
     fun startTryOnFromQuote() {
         sendIfReady(LoopsAIBridgeProtocol.NativeAction.START_TRY_ON_FROM_QUOTE)
     }
 
     /**
-     * Quote a specific product in the conversation (CONTRACT B.3 `quoteProduct`):
+     * Quote a specific product in the conversation (`quoteProduct`):
      * the runtime shows that product as a card **above the input** so the user can
      * ask their own question about it. No message is sent. Pairs with
      * [clearProductQuote] and [startTryOnFromQuote].
@@ -237,7 +237,7 @@ open class LoopsAIChatFragment : Fragment() {
     }
 
     /**
-     * Clear the active product quote (CONTRACT B.3 `clearProductQuote`). Pairs with
+     * Clear the active product quote (`clearProductQuote`). Pairs with
      * [LoopsAIChatListener.onProductQuoteChanged]: when your app dismisses its native
      * quote chip, call this so the web runtime drops the quote too.
      */
@@ -261,8 +261,8 @@ open class LoopsAIChatFragment : Fragment() {
     }
 
     /**
-     * Sync a known customer into the conversation (CONTRACT B.3
-     * `syncCustomerDetails`). Use when your app already knows who the user is (e.g.
+     * Sync a known customer into the conversation (`syncCustomerDetails`).
+     * Use when your app already knows who the user is (e.g.
      * after login) so chat / size / recommendations are personalized.
      */
     fun syncCustomerDetails(customerId: String) {
@@ -273,7 +273,7 @@ open class LoopsAIChatFragment : Fragment() {
     }
 
     /**
-     * Match the chat typography to your app (CONTRACT B.3 `setWebsiteFont`).
+     * Match the chat typography to your app (`setWebsiteFont`).
      * @param fontFamily a CSS `font-family` value the web runtime applies.
      */
     fun setWebsiteFont(fontFamily: String) {
@@ -285,7 +285,7 @@ open class LoopsAIChatFragment : Fragment() {
 
     /**
      * Close any open web overlay — size input, sidebars, drawers — without unloading
-     * the WebView (CONTRACT B.3 `closeOverlays`). Wire this to a back gesture so a
+     * the WebView (`closeOverlays`). Wire this to a back gesture so a
      * system back closes the overlay first instead of tearing down the chat.
      */
     fun closeOverlays() {
@@ -296,7 +296,7 @@ open class LoopsAIChatFragment : Fragment() {
      * Start a brand-new conversation, discarding the resume pointer. Reloads the
      * runtime with `fresh=true` so no prior conversation is restored. The fresh
      * conversation is persisted back natively once the web runtime reports it
-     * (CONTRACT B.2 `persistSession`), so a later relaunch resumes *it*.
+     * (`persistSession`), so a later relaunch resumes *it*.
      */
     fun startNewConversation() {
         sessionStore.setConversationId(null, config.agentId)
@@ -307,7 +307,7 @@ open class LoopsAIChatFragment : Fragment() {
 
     /**
      * Set the analytics consent state from your app's consent management platform
-     * (CONTRACT B.3 `setAnalyticsConsent`). `true` lets analytics dispatch, `false`
+     * (`setAnalyticsConsent`). `true` lets analytics dispatch, `false`
      * denies it (stops every adapter, including the always-on Loops sink). Call this
      * whenever the user updates their consent; it is forward-compatible.
      * @param granted `true` to grant analytics consent, `false` to deny it.
@@ -339,7 +339,7 @@ open class LoopsAIChatFragment : Fragment() {
 
     /**
      * On rotation / size change, tell the web runtime whether the layout is compact
-     * (CONTRACT B.3 `mobileStateChange`). The initial state is seeded in the load
+     * (`mobileStateChange`). The initial state is seeded in the load
      * URL; this keeps the runtime in sync afterwards (hosts that handle config
      * changes themselves).
      */

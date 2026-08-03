@@ -18,7 +18,7 @@ class LoopsAIChatConfigTest {
     }
 
     @Test
-    fun `chatUrl injects natively-owned session as _lsuid and _lscid (CONTRACT B4)`() {
+    fun `chatUrl injects natively-owned session as _lsuid and _lscid`() {
         val url = LoopsAIChatConfig(agentId = "agt").chatUrl(anonUserId = "anon123", conversationId = "cnv789")
         assertTrue(url.contains("_lsuid=anon123"))
         assertTrue(url.contains("_lscid=cnv789"))
@@ -52,7 +52,7 @@ class LoopsAIChatConfigTest {
     }
 
     @Test
-    fun `allowedHosts includes the production host and the custom host (CONTRACT B6)`() {
+    fun `allowedHosts includes the production host and the custom host`() {
         val config = LoopsAIChatConfig(
             agentId = "agt",
             environment = LoopsEnvironment.Custom("https://custom.example.com")
