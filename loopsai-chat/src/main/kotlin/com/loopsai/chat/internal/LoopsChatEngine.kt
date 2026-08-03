@@ -79,7 +79,7 @@ internal class LoopsChatEngine(
             WebView.setWebContentsDebuggingEnabled(true)
         }
 
-        // Origin allowlist enforced at attach time (CONTRACT B.6).
+        // Origin allowlist enforced at attach time.
         if (WebMessageListenerBridge.isSupported()) {
             WebMessageListenerBridge.attach(webView, config.allowedHosts, bridge)
             usesJsInterface = false
@@ -93,7 +93,7 @@ internal class LoopsChatEngine(
                 val url = request?.url ?: return true
                 val host = url.host ?: return true
                 if (config.allowedHosts.contains(host)) return false
-                // Foreign link → surface to the host, else in-app browser (CONTRACT B.6).
+                // Foreign link → surface to the host, else in-app browser.
                 routeOutboundUrl(url.toString())
                 return true
             }

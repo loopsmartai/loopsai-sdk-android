@@ -18,7 +18,7 @@ class LoopsAIChatConfigTest {
     }
 
     @Test
-    fun `chatUrl injects natively-owned session as _lsuid and _lscid (CONTRACT B4)`() {
+    fun `chatUrl injects natively-owned session as _lsuid and _lscid`() {
         val url = LoopsAIChatConfig(agentId = "agt").chatUrl(anonUserId = "anon123", conversationId = "cnv789")
         assertTrue(url.contains("_lsuid=anon123"))
         assertTrue(url.contains("_lscid=cnv789"))
@@ -38,6 +38,31 @@ class LoopsAIChatConfigTest {
     }
 
     @Test
+    fun `chatUrl normalizes a regional locale to its base language`() {
+        for (raw in listOf("tr_TR", "tr-TR", "TR", " tr ")) {
+            val url = LoopsAIChatConfig(agentId = "agt", locale = raw).chatUrl(null, null)
+            assertTrue("expected locale=tr for $raw", url.contains("locale=tr"))
+            assertFalse(url.lowercase().contains("tr_tr"))
+            assertFalse(url.lowercase().contains("tr-tr"))
+        }
+    }
+
+    @Test
+    fun `chatUrl omits a blank locale`() {
+        assertFalse(
+            LoopsAIChatConfig(agentId = "agt", locale = "   ").chatUrl(null, null).contains("locale")
+        )
+    }
+
+    @Test
+    fun `webCacheKey ignores locale spelling`() {
+        assertEquals(
+            LoopsAIChatConfig(agentId = "agt", locale = "tr-TR").webCacheKey,
+            LoopsAIChatConfig(agentId = "agt", locale = "tr").webCacheKey
+        )
+    }
+
+    @Test
     fun `default environment is production`() {
         assertEquals("https://chat.loopsai.com", LoopsAIChatConfig(agentId = "agt").baseUrl)
     }
@@ -52,7 +77,7 @@ class LoopsAIChatConfigTest {
     }
 
     @Test
-    fun `allowedHosts includes the production host and the custom host (CONTRACT B6)`() {
+    fun `allowedHosts includes the production host and the custom host`() {
         val config = LoopsAIChatConfig(
             agentId = "agt",
             environment = LoopsEnvironment.Custom("https://custom.example.com")

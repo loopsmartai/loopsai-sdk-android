@@ -18,7 +18,7 @@ class LoopsAnalyticsTest {
     )
 
     @Test
-    fun `forces channel android and schema_version on every event (CONTRACT Part A)`() {
+    fun `forces channel android and schema_version on every canonical event`() {
         val payload = JSONObject().put("event", JSONObject().put("event", "loops_ai_view_item_list").put("channel", "web"))
         val event = LoopsAnalyticsEvent.from(payload, context)!!
         assertEquals("android", event.channel)

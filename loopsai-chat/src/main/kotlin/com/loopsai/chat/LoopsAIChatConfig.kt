@@ -26,10 +26,25 @@ data class LoopsAIChatConfig(
     val designMode: Boolean = false
 ) {
     /**
-     * Pool key for the warm WebView engine (CONTRACT B — performance). One running
+     * Pool key for the warm WebView engine. One running
      * runtime per agent + environment + locale, so reopening the same chat reuses it.
      */
-    internal val webCacheKey: String get() = "$agentId|$baseUrl|${locale ?: ""}"
+    internal val webCacheKey: String
+        get() = "$agentId|$baseUrl|${normalizedLocale ?: ""}"
+
+    /**
+     * The base language tag the web runtime matches on. Hosts routinely pass
+     * `Locale.getDefault().toLanguageTag()` (`tr-TR`), which the runtime would not
+     * recognise — and an unnormalized value would also split the warm-engine
+     * bucket between two spellings of the same language.
+     */
+    internal val normalizedLocale: String?
+        get() {
+            val raw = locale?.trim().orEmpty()
+            if (raw.isEmpty()) return null
+            val base = raw.split('-', '_').first()
+            return base.ifEmpty { null }?.lowercase()
+        }
 
     internal val baseUrl: String get() = environment.baseUrl
 
@@ -51,7 +66,7 @@ data class LoopsAIChatConfig(
 
     /**
      * Builds the `mode=sdk` chat URL, re-injecting the natively-owned session
-     * (`_lsuid` / `_lscid`) on every load (CONTRACT B.4).
+     * (`_lsuid` / `_lscid`) on every load.
      *
      * Built with pure-JVM string assembly (no `android.net.Uri`) so it is
      * unit-testable without Robolectric, mirroring iOS's pure `URLComponents`.
@@ -66,7 +81,7 @@ data class LoopsAIChatConfig(
             anonUserId?.let { add("_lsuid" to it) }
             if (!fresh) conversationId?.let { add("_lscid" to it) }
             if (fresh) add("fresh" to "true")
-            locale?.let { add("locale" to it) }
+            normalizedLocale?.let { add("locale" to it) }
         }.joinToString("&") { (k, v) ->
             "${encode(k)}=${encode(v)}"
         }

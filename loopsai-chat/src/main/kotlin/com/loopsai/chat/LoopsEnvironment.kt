@@ -1,7 +1,7 @@
 package com.loopsai.chat
 
 /**
- * Where the SDK loads the web runtime from (CONTRACT B.6 origin allowlist).
+ * Where the SDK loads the web runtime from (drives the bridge origin allowlist).
  *
  * Mirror of the iOS `LoopsEnvironment`.
  */

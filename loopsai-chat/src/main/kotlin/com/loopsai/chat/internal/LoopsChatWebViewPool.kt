@@ -1,7 +1,7 @@
 package com.loopsai.chat.internal
 
 /**
- * Process-wide pool of long-lived chat engines (CONTRACT B — performance).
+ * Process-wide pool of long-lived chat engines.
  *
  * A small LRU of engines is kept warm so the common case — the user closing the
  * chat and reopening it to the same agent — reuses the already-running runtime

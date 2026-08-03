@@ -1,7 +1,7 @@
 package com.loopsai.chat
 
 /**
- * Host callbacks for a [LoopsAIChatFragment] (CONTRACT B.5).
+ * Host callbacks for a [LoopsAIChatFragment].
  *
  * Mirror of the iOS `LoopsAIChatDelegate`. All methods have default no-op
  * implementations except the two navigation callbacks ([onCloseRequested] /
@@ -19,8 +19,8 @@ interface LoopsAIChatListener {
     fun onResponding(fragment: LoopsAIChatFragment, isResponding: Boolean) {}
 
     /**
-     * A canonical analytics event crossed the bridge (CONTRACT Part A,
-     * `channel:"android"`). Delivered as-is — the SDK dictates the shape.
+     * A canonical analytics event crossed the bridge (`channel:"android"`).
+     * Delivered as-is — the SDK dictates the shape.
      */
     fun onAnalyticsEvent(fragment: LoopsAIChatFragment, event: LoopsAnalyticsEvent) {}
 
