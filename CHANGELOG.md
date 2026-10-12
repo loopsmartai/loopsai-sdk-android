@@ -59,6 +59,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`HISTORY`, `NEW_CHAT`, `FAVORITES`, `FITTING_ROOM`, `CART`) appear on the left
   and right. `null` keeps the default layout.
 
+### Fixed
+
+- **`openAsActivity` fits edge-to-edge**: the SDK activity pads the chat for
+  system bars, display cutouts and the keyboard (edge-to-edge is enforced on
+  Android 15). Embedded fragments keep the host's inset policy.
+- **Custom http hosts and ports** (e.g. `http://10.0.2.2:3001`) now deliver
+  bridge messages; origin rules no longer assume `https` on the default port.
+- **`initConfig` / `initContext` are resent for every loaded document**, including
+  reloads and `startNewConversation()`.
+
 ### Changed
 
 - **Analytics channel is now `"android"`** (was `"mobile_app"`): canonical events

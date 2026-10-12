@@ -20,12 +20,12 @@ data class LoopsAIChatConfig(
     val analytics: LoopsAnalyticsConfig = LoopsAnalyticsConfig.DEFAULT,
     val locale: String? = null,
     val showCloseButton: Boolean = true,
-    val closeButtonSlotWidthDp: Int = 36,
-    val headerLayout: LoopsHeaderLayout? = null,
     val startFresh: Boolean = false,
     val keepAliveEnabled: Boolean = true,
     val developmentMode: Boolean = false,
-    val designMode: Boolean = false
+    val designMode: Boolean = false,
+    val closeButtonSlotWidthDp: Int = 36,
+    val headerLayout: LoopsHeaderLayout? = null
 ) {
     /**
      * Pool key for the warm WebView engine. One running runtime per agent +

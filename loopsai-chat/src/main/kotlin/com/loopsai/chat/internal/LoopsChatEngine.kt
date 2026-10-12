@@ -102,6 +102,10 @@ internal class LoopsChatEngine(
                 return true
             }
 
+            override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+                isWebReady = false
+            }
+
             override fun onPageFinished(view: WebView?, url: String?) {
                 // Visual readiness only — the bridge-level `ready` action drives init.
                 presenter?.onEnginePageVisible()
