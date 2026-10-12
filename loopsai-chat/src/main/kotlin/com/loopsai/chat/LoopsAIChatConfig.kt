@@ -20,17 +20,26 @@ data class LoopsAIChatConfig(
     val analytics: LoopsAnalyticsConfig = LoopsAnalyticsConfig.DEFAULT,
     val locale: String? = null,
     val showCloseButton: Boolean = true,
+    val closeButtonSlotWidthDp: Int = 36,
+    val headerLayout: LoopsHeaderLayout? = null,
     val startFresh: Boolean = false,
     val keepAliveEnabled: Boolean = true,
     val developmentMode: Boolean = false,
     val designMode: Boolean = false
 ) {
     /**
-     * Pool key for the warm WebView engine. One running
-     * runtime per agent + environment + locale, so reopening the same chat reuses it.
+     * Pool key for the warm WebView engine. One running runtime per agent +
+     * environment + locale + header settings, so reopening the same chat reuses it.
      */
     internal val webCacheKey: String
-        get() = "$agentId|$baseUrl|${normalizedLocale ?: ""}"
+        get() = "$agentId|$baseUrl|${normalizedLocale ?: ""}|$headerCacheKey"
+
+    private val headerCacheKey: String
+        get() {
+            val slot = if (showCloseButton) closeButtonSlotWidthDp.coerceAtLeast(0).toString() else "none"
+            val layout = headerLayout?.let { "${it.left.map { a -> a.id }}${it.right.map { a -> a.id }}" } ?: ""
+            return "$slot|$layout"
+        }
 
     /**
      * The base language tag the web runtime matches on. Hosts routinely pass
@@ -94,3 +103,16 @@ data class LoopsAIChatConfig(
     private fun encodePathSegment(value: String): String =
         encode(value).replace("%2F", "/")
 }
+
+enum class LoopsHeaderAction(internal val id: String) {
+    HISTORY("history"),
+    NEW_CHAT("newChat"),
+    FAVORITES("favorites"),
+    FITTING_ROOM("fittingRoom"),
+    CART("cart")
+}
+
+data class LoopsHeaderLayout(
+    val left: List<LoopsHeaderAction> = emptyList(),
+    val right: List<LoopsHeaderAction> = emptyList()
+)

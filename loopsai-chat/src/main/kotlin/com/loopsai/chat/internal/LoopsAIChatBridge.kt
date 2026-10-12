@@ -6,6 +6,7 @@ import android.webkit.WebView
 import com.loopsai.chat.LoopsAIChatConfig
 import com.loopsai.chat.LoopsAIChatContext
 import com.loopsai.chat.LoopsProductQuote
+import org.json.JSONArray
 import org.json.JSONObject
 
 /**
@@ -132,7 +133,15 @@ internal class LoopsAIChatBridge(
         // server-resolved agent config.
         val cfg = JSONObject().apply { put("alwaysShowCloseButton", false) }
         if (config.showCloseButton) {
-            cfg.put("headerActionSlotWidthPx", HEADER_ACTION_SLOT_WIDTH_PX)
+            cfg.put("headerActionSlotWidthPx", config.closeButtonSlotWidthDp.coerceAtLeast(0))
+        }
+        config.headerLayout?.let { layout ->
+            cfg.put(
+                "headerActions",
+                JSONObject()
+                    .put("left", JSONArray(layout.left.map { it.id }))
+                    .put("right", JSONArray(layout.right.map { it.id }))
+            )
         }
         val flags = config.features.payload()
         val keys = flags.keys()
@@ -160,10 +169,5 @@ internal class LoopsAIChatBridge(
         // Deliver to the web runtime's window message listener (mode=sdk).
         val js = "window.postMessage($envelope, '*');"
         mainHandler.post { webView.evaluateJavascript(js, null) }
-    }
-
-    private companion object {
-        // Close button footprint: 32dp + 16dp end margin; web reserves whatever native sends (iOS 56, Android 48).
-        const val HEADER_ACTION_SLOT_WIDTH_PX = 48
     }
 }

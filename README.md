@@ -108,6 +108,8 @@ class MainActivity : AppCompatActivity() {
 | `analytics` | `LoopsAnalyticsConfig` | No | `DEFAULT` | Always-on Loops sink + optional customer adapter |
 | `locale` | `String` | No | `null` | Language code (e.g., `"en"`, `"tr"`) |
 | `showCloseButton` | `Boolean` | No | `true` | Show native close button (top-right overlay) |
+| `closeButtonSlotWidthDp` | `Int` | No | `36` | Width (dp) the chat header and panels keep free for the close button |
+| `headerLayout` | `LoopsHeaderLayout?` | No | `null` | Header actions per side, e.g. `LoopsHeaderLayout(left = listOf(HISTORY), right = listOf(FAVORITES))`. `null` keeps the default |
 | `startFresh` | `Boolean` | No | `false` | Start a new conversation on load instead of resuming the last one |
 | `keepAliveEnabled` | `Boolean` | No | `true` | Keep the chat runtime warm for instant reopen (shared WebView pool) |
 | `developmentMode` | `Boolean` | No | `false` | Load the chat even when the agent's web channel is inactive (staging/QA) |

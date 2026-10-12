@@ -50,6 +50,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   default on) keeps the chat runtime warm for instant reopen, mirroring iOS.
 - **Layout sync**: `mobileStateChange` dispatched on configuration changes.
 
+### Added
+
+- **`closeButtonSlotWidthDp`** config (default `36` dp): width the chat header
+  and panels keep free at the trailing edge for the native close button. Panels
+  show a leading dismiss chevron instead of their own close button.
+- **`headerLayout`** config (`LoopsHeaderLayout`): choose which header actions
+  (`HISTORY`, `NEW_CHAT`, `FAVORITES`, `FITTING_ROOM`, `CART`) appear on the left
+  and right. `null` keeps the default layout.
+
 ### Changed
 
 - **Analytics channel is now `"android"`** (was `"mobile_app"`): canonical events

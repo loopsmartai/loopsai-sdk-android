@@ -2,6 +2,7 @@ package com.loopsai.chat
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -60,6 +61,18 @@ class LoopsAIChatConfigTest {
             LoopsAIChatConfig(agentId = "agt", locale = "tr-TR").webCacheKey,
             LoopsAIChatConfig(agentId = "agt", locale = "tr").webCacheKey
         )
+    }
+
+    @Test
+    fun `webCacheKey separates header settings`() {
+        val base = LoopsAIChatConfig(agentId = "agt").webCacheKey
+        val layout = LoopsHeaderLayout(
+            left = listOf(LoopsHeaderAction.HISTORY),
+            right = listOf(LoopsHeaderAction.FAVORITES)
+        )
+        assertNotEquals(base, LoopsAIChatConfig(agentId = "agt", showCloseButton = false).webCacheKey)
+        assertNotEquals(base, LoopsAIChatConfig(agentId = "agt", closeButtonSlotWidthDp = 48).webCacheKey)
+        assertNotEquals(base, LoopsAIChatConfig(agentId = "agt", headerLayout = layout).webCacheKey)
     }
 
     @Test

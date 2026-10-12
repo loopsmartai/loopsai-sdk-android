@@ -45,6 +45,10 @@ internal class LoopsChatEngine(
     private val analyticsDispatcher: LoopsAnalyticsDispatcher = config.analytics.makeDispatcher()
 
     var isWebReady = false
+        set(value) {
+            field = value
+            if (!value) didSendInit = false
+        }
     private var didSendInit = false
     var loadedUrl: String? = null
     private var usesJsInterface = false
