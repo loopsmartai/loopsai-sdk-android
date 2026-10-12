@@ -12,6 +12,8 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.loopsai.chat.internal.LoopsAIBridgeProtocol
 import com.loopsai.chat.internal.LoopsAIChatRegistry
@@ -83,6 +85,7 @@ open class LoopsAIChatFragment : Fragment() {
         progressBar = view.findViewById(R.id.progressBar)
         errorView = view.findViewById(R.id.errorView)
         closeButton = view.findViewById(R.id.closeButton)
+        applySystemInsets(view)
 
         acquireEngine()
         sessionStore = engine.sessionStore
@@ -126,6 +129,16 @@ open class LoopsAIChatFragment : Fragment() {
             0,
             ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         )
+    }
+
+    private fun applySystemInsets(view: View) {
+        ViewCompat.setOnApplyWindowInsetsListener(view) { target, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            target.setPadding(bars.left, bars.top, bars.right, maxOf(bars.bottom, ime.bottom))
+            WindowInsetsCompat.CONSUMED
+        }
+        ViewCompat.requestApplyInsets(view)
     }
 
     private fun setupCloseButton() {
