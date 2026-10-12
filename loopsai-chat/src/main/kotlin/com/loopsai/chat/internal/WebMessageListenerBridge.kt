@@ -14,10 +14,9 @@ internal object WebMessageListenerBridge {
     fun attach(
         webView: WebView,
         allowedHosts: Set<String>,
+        originRules: Set<String>,
         bridge: LoopsAIChatBridge
     ) {
-        val originRules = allowedHosts.map { "https://$it" }.toSet()
-
         WebViewCompat.addWebMessageListener(
             webView,
             "loopsAIBridge",

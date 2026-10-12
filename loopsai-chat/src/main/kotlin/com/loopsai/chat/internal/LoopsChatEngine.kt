@@ -85,7 +85,7 @@ internal class LoopsChatEngine(
 
         // Origin allowlist enforced at attach time.
         if (WebMessageListenerBridge.isSupported()) {
-            WebMessageListenerBridge.attach(webView, config.allowedHosts, bridge)
+            WebMessageListenerBridge.attach(webView, config.allowedHosts, config.allowedOriginRules, bridge)
             usesJsInterface = false
         } else {
             JavaScriptInterfaceBridge.attach(webView, bridge)

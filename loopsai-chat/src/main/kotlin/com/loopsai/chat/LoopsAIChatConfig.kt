@@ -65,6 +65,19 @@ data class LoopsAIChatConfig(
             null
         }
 
+    internal val allowedOriginRules: Set<String>
+        get() {
+            val rules = linkedSetOf("https://chat.loopsai.com")
+            try {
+                val uri = URI(baseUrl)
+                if (uri.scheme != null && uri.host != null) {
+                    rules.add(if (uri.port == -1) "${uri.scheme}://${uri.host}" else "${uri.scheme}://${uri.host}:${uri.port}")
+                }
+            } catch (_: Exception) {
+            }
+            return rules
+        }
+
     /** Origin allowlist: the canonical Loops host + the configured custom host. */
     internal val allowedHosts: Set<String>
         get() {

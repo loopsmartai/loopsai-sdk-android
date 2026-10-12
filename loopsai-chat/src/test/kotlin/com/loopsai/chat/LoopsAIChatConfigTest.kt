@@ -102,6 +102,15 @@ class LoopsAIChatConfigTest {
     }
 
     @Test
+    fun `allowedOriginRules keep the scheme and port of a custom host`() {
+        val config = LoopsAIChatConfig(
+            agentId = "agt",
+            environment = LoopsEnvironment.Custom("http://10.0.2.2:3001")
+        )
+        assertEquals(setOf("https://chat.loopsai.com", "http://10.0.2.2:3001"), config.allowedOriginRules)
+    }
+
+    @Test
     fun `showCloseButton defaults to true`() {
         assertTrue(LoopsAIChatConfig(agentId = "agt").showCloseButton)
     }
