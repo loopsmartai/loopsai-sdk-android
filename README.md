@@ -28,7 +28,17 @@ Add the dependency to your app-level `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.loopsmartai:loopsai-sdk-android:1.0.5")
+    implementation("com.github.loopsmartai:loopsai-sdk-android:1.0.2")
+}
+```
+
+### Direct AAR
+
+For private distributions, download the release AAR from GitHub Releases and add it to your `libs/` folder:
+
+```kotlin
+dependencies {
+    implementation(files("libs/loopsai-chat-1.0.0.aar"))
 }
 ```
 
@@ -108,6 +118,8 @@ class MainActivity : AppCompatActivity() {
 | `analytics` | `LoopsAnalyticsConfig` | No | `DEFAULT` | Always-on Loops sink + optional customer adapter |
 | `locale` | `String` | No | `null` | Language code (e.g., `"en"`, `"tr"`) |
 | `showCloseButton` | `Boolean` | No | `true` | Show native close button (top-right overlay) |
+| `closeButtonSlotWidthDp` | `Int` | No | `36` | Width (dp) the chat header and panels keep free for the close button |
+| `headerLayout` | `LoopsHeaderLayout?` | No | `null` | Header actions per side, e.g. `LoopsHeaderLayout(left = listOf(LoopsHeaderAction.HISTORY), right = listOf(LoopsHeaderAction.FAVORITES))`. `null` keeps the default |
 | `startFresh` | `Boolean` | No | `false` | Start a new conversation on load instead of resuming the last one |
 | `keepAliveEnabled` | `Boolean` | No | `true` | Keep the chat runtime warm for instant reopen (shared WebView pool) |
 | `developmentMode` | `Boolean` | No | `false` | Load the chat even when the agent's web channel is inactive (staging/QA) |
@@ -222,7 +234,9 @@ fragment.closeOverlays()                 // close overlays on a back gesture
 
 Turn chat on/off from the dashboard **without an app update** — the Android
 channel has its own Active/Passive toggle in the Channels tab, independent of web
-and iOS. Query it before showing your chat entry point:
+and iOS. While the Android channel is unset (never configured), availability
+falls back to the web channel's `embedEnabled` gate. Query it before showing
+your chat entry point:
 
 ```kotlin
 LoopsAIChat.fetchAvailability("your_agent_id") { available ->

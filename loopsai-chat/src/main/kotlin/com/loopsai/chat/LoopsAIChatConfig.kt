@@ -23,14 +23,35 @@ data class LoopsAIChatConfig(
     val startFresh: Boolean = false,
     val keepAliveEnabled: Boolean = true,
     val developmentMode: Boolean = false,
-    val designMode: Boolean = false
+    val designMode: Boolean = false,
+    val closeButtonSlotWidthDp: Int = 36,
+    val headerLayout: LoopsHeaderLayout? = null,
+    val widgetVersion: String? = null,
+    val previewToken: String? = null,
+    val agentVersion: String? = null
 ) {
     /**
-     * Pool key for the warm WebView engine. One running
-     * runtime per agent + environment + locale, so reopening the same chat reuses it.
+     * Pool key for the warm WebView engine. One running runtime per agent +
+     * environment + locale + header settings, so reopening the same chat reuses it.
      */
     internal val webCacheKey: String
-        get() = "$agentId|$baseUrl|${normalizedLocale ?: ""}"
+        get() = "$agentId|$baseUrl|${normalizedLocale ?: ""}|${if (developmentMode) "dev" else "prod"}|${normalizedWidgetVersion ?: ""}|${normalizedAgentVersion ?: ""}|${normalizedPreviewToken ?: ""}|$headerCacheKey"
+
+    internal val normalizedWidgetVersion: String?
+        get() = widgetVersion?.trim()?.takeIf { it.isNotEmpty() }
+
+    internal val normalizedPreviewToken: String?
+        get() = previewToken?.trim()?.takeIf { it.isNotEmpty() }
+
+    internal val normalizedAgentVersion: String?
+        get() = agentVersion?.trim()?.takeIf { it.isNotEmpty() }
+
+    private val headerCacheKey: String
+        get() {
+            val slot = if (showCloseButton) closeButtonSlotWidthDp.coerceAtLeast(0).toString() else "none"
+            val layout = headerLayout?.let { "${it.left.map { a -> a.id }}${it.right.map { a -> a.id }}" } ?: ""
+            return "$slot|$layout"
+        }
 
     /**
      * The base language tag the web runtime matches on. Hosts routinely pass
@@ -56,6 +77,19 @@ data class LoopsAIChatConfig(
             null
         }
 
+    internal val allowedOriginRules: Set<String>
+        get() {
+            val rules = linkedSetOf("https://chat.loopsai.com")
+            try {
+                val uri = URI(baseUrl)
+                if (uri.scheme != null && uri.host != null) {
+                    rules.add(if (uri.port == -1) "${uri.scheme}://${uri.host}" else "${uri.scheme}://${uri.host}:${uri.port}")
+                }
+            } catch (_: Exception) {
+            }
+            return rules
+        }
+
     /** Origin allowlist: the canonical Loops host + the configured custom host. */
     internal val allowedHosts: Set<String>
         get() {
@@ -78,10 +112,17 @@ data class LoopsAIChatConfig(
             add("mode" to "sdk")
             add("platform" to "android")
             add("isMobile" to "true")
+            add("hostManagedVisibility" to "true")
             anonUserId?.let { add("_lsuid" to it) }
             if (!fresh) conversationId?.let { add("_lscid" to it) }
             if (fresh) add("fresh" to "true")
             normalizedLocale?.let { add("locale" to it) }
+            normalizedWidgetVersion?.let { wv ->
+                add("wv" to wv)
+                normalizedPreviewToken?.let { pt -> add("pt" to pt) }
+            }
+            normalizedAgentVersion?.let { add("av" to it) }
+            if (developmentMode) add("dev" to "1")
         }.joinToString("&") { (k, v) ->
             "${encode(k)}=${encode(v)}"
         }
@@ -94,3 +135,16 @@ data class LoopsAIChatConfig(
     private fun encodePathSegment(value: String): String =
         encode(value).replace("%2F", "/")
 }
+
+enum class LoopsHeaderAction(internal val id: String) {
+    HISTORY("history"),
+    NEW_CHAT("newChat"),
+    FAVORITES("favorites"),
+    FITTING_ROOM("fittingRoom"),
+    CART("cart")
+}
+
+data class LoopsHeaderLayout(
+    val left: List<LoopsHeaderAction> = emptyList(),
+    val right: List<LoopsHeaderAction> = emptyList()
+)

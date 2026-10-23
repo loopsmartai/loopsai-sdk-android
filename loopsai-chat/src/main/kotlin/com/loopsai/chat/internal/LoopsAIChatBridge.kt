@@ -6,6 +6,7 @@ import android.webkit.WebView
 import com.loopsai.chat.LoopsAIChatConfig
 import com.loopsai.chat.LoopsAIChatContext
 import com.loopsai.chat.LoopsProductQuote
+import org.json.JSONArray
 import org.json.JSONObject
 
 /**
@@ -38,6 +39,7 @@ internal class LoopsAIChatBridge(
         fun onProductQuoteChanged(quote: LoopsProductQuote?)
         fun onConversationActive()
         fun onPersistSession(payload: JSONObject)
+        fun onWebOverlayChanged(opened: Boolean)
     }
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -91,8 +93,10 @@ internal class LoopsAIChatBridge(
                 host.onPersistSession(payload)
 
             LoopsAIBridgeProtocol.WebAction.OVERLAY_OPEN,
-            LoopsAIBridgeProtocol.WebAction.OVERLAY_CLOSED ->
+            LoopsAIBridgeProtocol.WebAction.OVERLAY_CLOSED -> {
+                host.onWebOverlayChanged(action == LoopsAIBridgeProtocol.WebAction.OVERLAY_OPEN)
                 host.onMessageEvent(mapOf("action" to action.raw))
+            }
         }
     }
 
@@ -115,7 +119,8 @@ internal class LoopsAIChatBridge(
         webView: WebView,
         action: LoopsAIBridgeProtocol.NativeAction,
         payload: JSONObject = JSONObject(),
-        requestId: String? = null
+        requestId: String? = null,
+        onDelivered: (() -> Unit)? = null
     ) {
         val envelope = JSONObject().apply {
             put("protocolVersion", LoopsAIBridgeProtocol.VERSION)
@@ -124,7 +129,7 @@ internal class LoopsAIChatBridge(
             put("payload", payload)
             requestId?.let { put("requestId", it) }
         }
-        inject(webView, envelope)
+        inject(webView, envelope, onDelivered)
     }
 
     fun sendInitConfig(webView: WebView) {
@@ -132,7 +137,15 @@ internal class LoopsAIChatBridge(
         // server-resolved agent config.
         val cfg = JSONObject().apply { put("alwaysShowCloseButton", false) }
         if (config.showCloseButton) {
-            cfg.put("headerActionSlotWidthPx", HEADER_ACTION_SLOT_WIDTH_PX)
+            cfg.put("headerActionSlotWidthPx", config.closeButtonSlotWidthDp.coerceAtLeast(0))
+        }
+        config.headerLayout?.let { layout ->
+            cfg.put(
+                "headerActions",
+                JSONObject()
+                    .put("left", JSONArray(layout.left.map { it.id }))
+                    .put("right", JSONArray(layout.right.map { it.id }))
+            )
         }
         val flags = config.features.payload()
         val keys = flags.keys()
@@ -156,14 +169,13 @@ internal class LoopsAIChatBridge(
         send(webView, LoopsAIBridgeProtocol.NativeAction.UPDATE_CONTEXT, context.toPayload())
     }
 
-    private fun inject(webView: WebView, envelope: JSONObject) {
+    private fun inject(webView: WebView, envelope: JSONObject, onDelivered: (() -> Unit)? = null) {
         // Deliver to the web runtime's window message listener (mode=sdk).
-        val js = "window.postMessage($envelope, '*');"
-        mainHandler.post { webView.evaluateJavascript(js, null) }
-    }
-
-    private companion object {
-        // Close button footprint: 32dp + 16dp end margin; web reserves whatever native sends (iOS 56, Android 48).
-        const val HEADER_ACTION_SLOT_WIDTH_PX = 48
+        val js = if (onDelivered == null) {
+            "window.postMessage($envelope, '*');"
+        } else {
+            "window.dispatchEvent(new MessageEvent('message', {data: $envelope, origin: window.location.origin, source: window}));"
+        }
+        mainHandler.post { webView.evaluateJavascript(js) { onDelivered?.invoke() } }
     }
 }
