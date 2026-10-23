@@ -3,4 +3,6 @@
     <string name="loopsai_chat_error_title">Unable to load chat</string>
     <string name="loopsai_chat_retry">Retry</string>
     <string name="loopsai_chat_close">Close</string>
+    <string name="loopsai_chat_closes_chat">Closes the chat</string>
+    <string name="loopsai_chat_closes_panel">Closes the open panel</string>
 </resources>

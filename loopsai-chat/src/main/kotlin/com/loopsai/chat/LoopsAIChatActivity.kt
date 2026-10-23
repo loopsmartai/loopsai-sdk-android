@@ -3,7 +3,10 @@ package com.loopsai.chat
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.loopsai.chat.internal.LoopsAIChatRegistry
 
 /**
@@ -28,6 +31,7 @@ class LoopsAIChatActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_loopsai_chat)
+        applySystemInsets(findViewById(R.id.fragmentContainer))
 
         val token = intent.getStringExtra(EXTRA_TOKEN)
         // If the config didn't survive process death, the registry is empty —
@@ -43,5 +47,14 @@ class LoopsAIChatActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, fragment)
             .commit()
+    }
+
+    private fun applySystemInsets(container: View) {
+        ViewCompat.setOnApplyWindowInsetsListener(container) { target, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            target.setPadding(bars.left, bars.top, bars.right, maxOf(bars.bottom, ime.bottom))
+            WindowInsetsCompat.CONSUMED
+        }
     }
 }

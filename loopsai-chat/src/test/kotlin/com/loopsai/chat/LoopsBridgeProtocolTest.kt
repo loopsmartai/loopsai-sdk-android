@@ -69,5 +69,6 @@ class LoopsBridgeProtocolTest {
         assertEquals("syncCustomerDetails", LoopsAIBridgeProtocol.NativeAction.SYNC_CUSTOMER_DETAILS.raw)
         assertEquals("setWebsiteFont", LoopsAIBridgeProtocol.NativeAction.SET_WEBSITE_FONT.raw)
         assertEquals("setAnalyticsConsent", LoopsAIBridgeProtocol.NativeAction.SET_ANALYTICS_CONSENT.raw)
+        assertEquals("widgetVisibility", LoopsAIBridgeProtocol.NativeAction.WIDGET_VISIBILITY.raw)
     }
 }

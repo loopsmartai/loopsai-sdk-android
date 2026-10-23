@@ -13,6 +13,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import com.loopsai.chat.internal.LoopsAIBridgeProtocol
 import com.loopsai.chat.internal.LoopsAIChatRegistry
 import com.loopsai.chat.internal.LoopsChatEngine
@@ -56,9 +57,14 @@ open class LoopsAIChatFragment : Fragment() {
     private var progressBar: ProgressBar? = null
     private var errorView: LinearLayout? = null
     private var closeButton: ImageButton? = null
+    private var closeButtonDim: View? = null
 
     /** One-shot: when set, the next load starts a fresh conversation. */
     private var startFreshOnNextLoad = false
+
+    private var pendingSearch: Pair<String, Boolean>? = null
+    private var reportedWidgetVisible: Boolean? = null
+    private var isNotifyingReady = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +75,11 @@ open class LoopsAIChatFragment : Fragment() {
             )
         listener = listener ?: LoopsAIChatRegistry.listener(token)
         startFreshOnNextLoad = config.startFresh
+        if (pendingSearch == null) {
+            savedInstanceState?.getString("loopsai_pending_search_query")?.let {
+                pendingSearch = it to savedInstanceState.getBoolean("loopsai_pending_search_products_only")
+            }
+        }
     }
 
     override fun onCreateView(
@@ -83,6 +94,7 @@ open class LoopsAIChatFragment : Fragment() {
         progressBar = view.findViewById(R.id.progressBar)
         errorView = view.findViewById(R.id.errorView)
         closeButton = view.findViewById(R.id.closeButton)
+        closeButtonDim = view.findViewById(R.id.closeButtonDim)
 
         acquireEngine()
         sessionStore = engine.sessionStore
@@ -130,7 +142,10 @@ open class LoopsAIChatFragment : Fragment() {
 
     private fun setupCloseButton() {
         closeButton?.visibility = View.GONE
-        closeButton?.setOnClickListener { listener?.onCloseRequested(this) }
+        closeButton?.setOnClickListener {
+            if (engine.webOverlayCount > 0) closeOverlays() else listener?.onCloseRequested(this)
+        }
+        onWebOverlayStateChanged()
     }
 
     private fun setupRetryButton(view: View) {
@@ -158,10 +173,13 @@ open class LoopsAIChatFragment : Fragment() {
     }
 
     private fun loadChat() {
+        reportedWidgetVisible = null
         errorView?.visibility = View.GONE
         progressBar?.visibility = View.VISIBLE
         engine.webView.alpha = 0f
         closeButton?.alpha = 0f
+        closeButton?.visibility = View.GONE
+        closeButtonDim?.alpha = 0f
         // `startFreshOnNextLoad` is one-shot: consume it so a later reload (e.g.
         // retry) resumes normally once the new conversation has been persisted.
         val fresh = startFreshOnNextLoad
@@ -186,17 +204,46 @@ open class LoopsAIChatFragment : Fragment() {
             closeButton?.visibility = View.VISIBLE
             closeButton?.animate()?.alpha(1f)?.setDuration(250)?.start()
         }
+        onWebOverlayStateChanged()
     }
 
     // MARK: - Engine callbacks (web → native, UI-facing)
 
+    internal fun onEngineLoadStarted() {
+        reportedWidgetVisible = null
+    }
+
     internal fun onEngineReady() {
         revealContent()
-        listener?.onReady(this)
+        pendingSearch?.let { (query, productsOnly) ->
+            pendingSearch = null
+            engine.bridge.send(
+                engine.webView,
+                LoopsAIBridgeProtocol.NativeAction.SEARCH_ESCALATION,
+                JSONObject().put("query", query).put("isOnlySearchProducts", productsOnly)
+            )
+        }
+        isNotifyingReady = true
+        try {
+            listener?.onReady(this)
+        } finally {
+            isNotifyingReady = false
+        }
+        if (engine.presenter === this && view != null && !isRemoving && activity?.isFinishing != true) {
+            sendWidgetVisibility(!isHidden)
+        }
     }
 
     internal fun onEnginePageVisible() {
         revealContent()
+    }
+
+    internal fun onWebOverlayStateChanged() {
+        val dimmed = config.showCloseButton && engine.webOverlayCount > 0 && closeButton?.visibility == View.VISIBLE
+        closeButtonDim?.animate()?.alpha(if (dimmed) 1f else 0f)?.setDuration(200)?.start()
+        closeButton?.contentDescription = getString(
+            if (engine.webOverlayCount > 0) R.string.loopsai_chat_closes_panel else R.string.loopsai_chat_closes_chat
+        )
     }
 
     internal fun onEngineLoadError(description: String) {
@@ -254,6 +301,10 @@ open class LoopsAIChatFragment : Fragment() {
      * @param productsOnly restrict to product search (no chat escalation).
      */
     fun openWithSearch(query: String, productsOnly: Boolean = false) {
+        if (!::engine.isInitialized || view == null || engine.presenter !== this || !engine.isWebReady) {
+            pendingSearch = query to productsOnly
+            return
+        }
         sendIfReady(
             LoopsAIBridgeProtocol.NativeAction.SEARCH_ESCALATION,
             JSONObject().put("query", query).put("isOnlySearchProducts", productsOnly)
@@ -324,6 +375,36 @@ open class LoopsAIChatFragment : Fragment() {
         engine.bridge.send(engine.webView, action, payload)
     }
 
+    private fun sendWidgetVisibility(visible: Boolean) {
+        if (!visible) {
+            dispatchWidgetVisibility(false)
+            return
+        }
+        val currentView = view ?: return
+        currentView.post {
+            if (
+                view === currentView &&
+                viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) &&
+                !isNotifyingReady &&
+                !isHidden &&
+                !isRemoving &&
+                activity?.isFinishing != true
+            ) {
+                dispatchWidgetVisibility(true)
+            }
+        }
+    }
+
+    private fun dispatchWidgetVisibility(visible: Boolean) {
+        if (!::engine.isInitialized || view == null || engine.presenter !== this || !engine.isWebReady) return
+        if (reportedWidgetVisible == visible) return
+        reportedWidgetVisible = visible
+        sendIfReady(
+            LoopsAIBridgeProtocol.NativeAction.WIDGET_VISIBILITY,
+            JSONObject().put("visible", visible)
+        )
+    }
+
     internal fun openExternalUrl(url: String) {
         val ctx = context ?: return
         val uri = Uri.parse(url)
@@ -351,25 +432,68 @@ open class LoopsAIChatFragment : Fragment() {
         )
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        pendingSearch?.let { (query, productsOnly) ->
+            outState.putString("loopsai_pending_search_query", query)
+            outState.putBoolean("loopsai_pending_search_products_only", productsOnly)
+        }
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!isNotifyingReady && !isRemoving && activity?.isFinishing != true) {
+            sendWidgetVisibility(!isHidden)
+        }
+    }
+
+    override fun onStop() {
+        if (activity?.isChangingConfigurations != true) {
+            sendWidgetVisibility(false)
+        }
+        super.onStop()
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (isNotifyingReady || isRemoving || activity?.isFinishing == true) return
+        sendWidgetVisibility(!isHidden)
+    }
+
     override fun onDestroyView() {
         if (engine.presenter === this) {
+            // Cold mode disposes the engine outright. With keep-alive on, the engine
+            // normally stays warm in the pool for an instant reopen — but if it was
+            // superseded in the pool (e.g. a newer presentation of the same agent),
+            // this fragment owns the only reference, so dispose it to avoid a leak.
+            val shouldDispose = !config.keepAliveEnabled || !LoopsChatWebViewPool.isPooled(engine)
+            val retiringEngine = engine
+            if (shouldDispose) {
+                if (engine.isWebReady) {
+                    engine.bridge.send(
+                        engine.webView,
+                        LoopsAIBridgeProtocol.NativeAction.WIDGET_VISIBILITY,
+                        JSONObject().put("visible", false),
+                        onDelivered = { retiringEngine.teardown() }
+                    )
+                } else {
+                    retiringEngine.teardown()
+                }
+            } else if (activity?.isChangingConfigurations != true) {
+                sendWidgetVisibility(false)
+            }
             (engine.webView.parent as? ViewGroup)?.removeView(engine.webView)
             // Revert to the application context so a warm engine never retains the
             // Activity (the next presentation swaps its own Activity back in).
             (engine.webView.context as? MutableContextWrapper)?.baseContext =
                 requireContext().applicationContext
             engine.presenter = null
-            // Cold mode disposes the engine outright. With keep-alive on, the engine
-            // normally stays warm in the pool for an instant reopen — but if it was
-            // superseded in the pool (e.g. a newer presentation of the same agent),
-            // this fragment owns the only reference, so dispose it to avoid a leak.
-            if (!config.keepAliveEnabled || !LoopsChatWebViewPool.isPooled(engine)) {
-                engine.teardown()
-            }
         }
+        reportedWidgetVisible = null
         progressBar = null
         errorView = null
         closeButton = null
+        closeButtonDim = null
         super.onDestroyView()
     }
 

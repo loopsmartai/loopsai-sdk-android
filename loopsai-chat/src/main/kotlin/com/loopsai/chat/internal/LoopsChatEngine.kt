@@ -45,6 +45,13 @@ internal class LoopsChatEngine(
     private val analyticsDispatcher: LoopsAnalyticsDispatcher = config.analytics.makeDispatcher()
 
     var isWebReady = false
+        set(value) {
+            field = value
+            if (!value) {
+                didSendInit = false
+                presenter?.onEngineLoadStarted()
+            }
+        }
     private var didSendInit = false
     var loadedUrl: String? = null
     private var usesJsInterface = false
@@ -65,6 +72,9 @@ internal class LoopsChatEngine(
     /** Reusable when nothing is presenting it. */
     val isAvailable: Boolean get() = presenter == null
 
+    var webOverlayCount = 0
+        private set
+
     @SuppressLint("SetJavaScriptEnabled")
     fun setup() {
         webView.settings.apply {
@@ -81,7 +91,7 @@ internal class LoopsChatEngine(
 
         // Origin allowlist enforced at attach time.
         if (WebMessageListenerBridge.isSupported()) {
-            WebMessageListenerBridge.attach(webView, config.allowedHosts, bridge)
+            WebMessageListenerBridge.attach(webView, config.allowedHosts, config.allowedOriginRules, bridge)
             usesJsInterface = false
         } else {
             JavaScriptInterfaceBridge.attach(webView, bridge)
@@ -96,6 +106,11 @@ internal class LoopsChatEngine(
                 // Foreign link → surface to the host, else in-app browser.
                 routeOutboundUrl(url.toString())
                 return true
+            }
+
+            override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+                isWebReady = false
+                resetWebOverlays()
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
@@ -220,6 +235,16 @@ internal class LoopsChatEngine(
 
     override fun onConversationActive() {
         presenter?.let { it.listener?.onConversationActive(it) }
+    }
+
+    override fun onWebOverlayChanged(opened: Boolean) {
+        webOverlayCount = (webOverlayCount + if (opened) 1 else -1).coerceAtLeast(0)
+        presenter?.onWebOverlayStateChanged()
+    }
+
+    fun resetWebOverlays() {
+        webOverlayCount = 0
+        presenter?.onWebOverlayStateChanged()
     }
 
     companion object {
