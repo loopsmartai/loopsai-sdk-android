@@ -66,7 +66,8 @@ internal object LoopsAIBridgeProtocol {
         SET_ANALYTICS_CONSENT("setAnalyticsConsent"), // host CMP consent → web consent gate
         CLEAR_PRODUCT_QUOTE("clearProductQuote"),    // clear the active quote chip
         CLOSE_OVERLAYS("closeOverlays"),             // dispatch loopsai:close-overlays in the runtime
-        MOBILE_STATE_CHANGE("mobileStateChange");    // rotation / size change → re-evaluate layout
+        MOBILE_STATE_CHANGE("mobileStateChange"),    // rotation / size change → re-evaluate layout
+        WIDGET_VISIBILITY("widgetVisibility");       // host-driven shown/hidden state for analytics
     }
 }
 

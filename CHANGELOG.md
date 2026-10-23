@@ -7,15 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
+### Added
 
-- **Regional locale tags are normalized before reaching the runtime.** Hosts
-  naturally pass `Locale.getDefault().toLanguageTag()` (`tr-TR` / `tr_TR`); the
-  web runtime only matches the base language tag, so a regional value was
-  ignored and the chat fell back to the device language. The two spellings
-  also split the warm-engine cache into separate WebViews for the same
-  language. The SDK now sends the lowercased base tag and keys the warm
-  engine on it.
+- Added optional widgetVersion, previewToken, and agentVersion configuration, plus developmentMode URL selection.
+- Isolated warm runtimes by version, preview token, and development mode.
 
 ### Added — server-controlled availability
 
@@ -49,6 +44,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Warm runtime reuse**: a process-wide WebView engine pool (`keepAliveEnabled`,
   default on) keeps the chat runtime warm for instant reopen, mirroring iOS.
 - **Layout sync**: `mobileStateChange` dispatched on configuration changes.
+- **Host-managed widget visibility** — the SDK now drives the web runtime's
+  visible state itself (`hostManagedVisibility=true` on the load URL plus a new
+  native→web `widgetVisibility` bridge action sent on present/dismiss), so
+  `loops_ai_widget_opened` analytics fire on every open — including warm
+  keep-alive reopens that previously emitted nothing.
+- **Queued `openWithSearch`** — calls made before the web runtime is ready (or
+  before the view exists) are no longer dropped: the last query is stored and
+  flushed as `searchEscalation` when the engine becomes ready.
+
+### Added
+
+- **`closeButtonSlotWidthDp`** config (default `36` dp): width the chat header
+  and panels keep free at the trailing edge for the native close button. Panels
+  show a leading dismiss chevron instead of their own close button.
+- **`headerLayout`** config (`LoopsHeaderLayout`): choose which header actions
+  (`HISTORY`, `NEW_CHAT`, `FAVORITES`, `FITTING_ROOM`, `CART`) appear on the left
+  and right. `null` keeps the default layout.
+
+### Fixed
+
+- **`openAsActivity` fits edge-to-edge**: the SDK activity pads the chat for
+  system bars, display cutouts and the keyboard (edge-to-edge is enforced on
+  Android 15). Embedded fragments keep the host's inset policy.
+- **Custom http hosts and ports** (e.g. `http://10.0.2.2:3001`) now deliver
+  bridge messages; origin rules no longer assume `https` on the default port.
+- **`initConfig` / `initContext` are resent for every loaded document**, including
+  reloads and `startNewConversation()`.
 
 ### Changed
 
@@ -60,6 +82,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Production-only environment**: the SDK now targets `chat.loopsai.com`
   everywhere. `LoopsEnvironment.Test` was removed; `Production` and `Custom(url)`
   remain.
+
+### Fixed
+
+- `loops_ai_widget_opened` was attributed `open_source: "bubble"` even when the
+  chat was opened via `openWithSearch`; the search escalation now reaches the
+  runtime before `visible=true` so the open is attributed `search_escalation`.
+- `loops_ai_search_clicked` could be lost when `openWithSearch` was called
+  before the web `ready` handshake (the call was silently dropped) — and calling
+  it before `onViewCreated` crashed on the `lateinit` engine.
 
 ### Removed
 
