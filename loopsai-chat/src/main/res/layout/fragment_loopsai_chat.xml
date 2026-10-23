@@ -52,4 +52,15 @@
         android:src="@drawable/ic_close_circle"
         android:visibility="gone" />
 
+    <View
+        android:id="@+id/closeButtonDim"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
+        android:alpha="0"
+        android:background="@drawable/bg_close_button_dim"
+        android:importantForAccessibility="no" />
+
 </FrameLayout>
